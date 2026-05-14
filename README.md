@@ -1,1 +1,1 @@
-# LogiAgro
+Projeto para a Feira de tecnologia do Inatel, onde o principal foco desse projeto era faciliar o cotidiano de um trabalhador rural, com o uso de ferramentas de rastreamento, mercado e equipamentos básico para o cuidado de animais. 

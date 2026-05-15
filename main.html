@@ -8,15 +8,38 @@
 </head>
 <body>
 
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h2>Opções</h2>
+            <span class="material-symbols-outlined close-btn" onclick="toggleMenu()">close</span>
+        </div>
+        <nav class="sidebar-links">
+            <a href="#"><span class="material-symbols-outlined">home</span> Início</a>
+            <a href="#"><span class="material-symbols-outlined">notifications</span> Notificações</a>
+            <a href="#"><span class="material-symbols-outlined">warning</span> Alertas</a>
+            <a href="#"><span class="material-symbols-outlined">store</span> Mercado</a>
+            <a href="#"><span class="material-symbols-outlined">settings</span> Configurações</a>
+            <a href="#"><span class="material-symbols-outlined">help</span> Ajuda</a>
+            <a href="#"><span class="material-symbols-outlined">logout</span> Sair</a>
+        </nav>
+    </div>
+
+    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+
     <header class="main-header">
-        <span class="material-symbols-outlined icon-white">menu</span>
-    
-        <div class="Logo-container">
+        
+        <div class="icon-btn" onclick="toggleMenu()">
+            <span class="material-symbols-outlined">menu</span>
+        </div>
+
+        <div class="logo-container">
             <h1 class="company-name">LogiAgro</h1>
             <img src="Logo/logo-touro2.png" alt="Logo Touro" class="app-logo">
         </div>
-    
-        <span class="material-symbols-outlined icon-white">person</span>
+
+        <div class="icon-btn">
+            <span class="material-symbols-outlined">person</span>
+        </div>
     </header>
 
     <main class="container">

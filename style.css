@@ -12,10 +12,10 @@ body { background-color: var(--bg-light); color: #333; }
 .main-header {
     background-color: var(--primary-green);
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; 
     align-items: center;
-    padding: 15px 20px;
-    color: white;
+    padding: 10px 20px;
+    height: 80px; 
     position: sticky;
     top: 0;
     z-index: 100;
@@ -38,7 +38,7 @@ body { background-color: var(--bg-light); color: #333; }
     margin-bottom: 20px;
 }
 
-/* Responsividade: Se a tela for pequena, empilha os itens */
+
 @media (max-width: 768px) {
     .top-section { grid-template-columns: 1fr; }
     .side-cards { display: flex; gap: 10px; }
@@ -61,20 +61,20 @@ body { background-color: var(--bg-light); color: #333; }
 /* Container para alinhar logo e texto lado a lado */
 .Logo-container {
     display: flex;
-    flex-direction: row; /* Força os itens a ficarem em linha */
-    align-items: center; /* Alinha o touro e o texto pelo meio verticalmente */
-    gap: 10px;           /* Dá um espaçinho entre a imagem e o texto */
+    align-items: center; 
+    gap: 10px;           
 }
 
 .company-name {
-    font-size: 1.6rem;   /* Dica: 2.5rem é bem grande para um header, talvez 1.5rem fique mais elegante */
+    font-size: 1.4rem;
     white-space: nowrap;
+    color: white;
 }
 
 .app-logo {
-    height: 60px;        
-    width: auto;         
-    display: block;      /* Garante que a imagem se comporte bem no flex */
+    height: 50px; 
+    width: auto;
+    display: block;
 }
 
 .circle-icon {
@@ -86,6 +86,43 @@ body { background-color: var(--bg-light); color: #333; }
     justify-content: center;
     align-items: center;
     margin-bottom: 15px;
+}
+
+/* Estilo para o quadradinho ao redor do ícone */
+.icon-btn {
+    background-color: rgba(255, 255, 255, 0.2); 
+    width: 42px;                
+    height: 42px;               
+    display: flex;              
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;         /* Bordas levemente arredondadas */
+    cursor: pointer;
+    transition: background 0.3s ease; /* Efeito suave ao passar o mouse */
+}
+
+/* Efeito de hover (opcional, para quando passar o mouse) */
+.icon-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3); /* Fica um pouco mais visível */
+}
+
+/* Garante que o ícone dentro do quadrado continue branco */
+.icon-btn .material-symbols-outlined {
+    color: white;
+    font-size: 24px;
+}
+
+/* Efeito de hover para os cards de Monitoramento, Alertas e Notificações */
+.card:hover {
+    background-color: #f2f2f2; 
+    cursor: pointer;           
+    transition: background-color 0.3s ease; 
+}
+
+.mercado-item:hover {
+    background-color: #f2f2f2; 
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
 .pin { font-size: 50px; color: #1a73e8; }
@@ -129,3 +166,76 @@ body { background-color: var(--bg-light); color: #333; }
 
 .bg-green { background-color: var(--primary-green); }
 .bg-blue { background-color: #1a73e8; }
+
+/* Configuração da Barra Lateral */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 250px;
+    background-color: white;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    transform: translateX(-100%);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+}
+
+.sidebar.active {
+    transform: translateX(0);
+}
+
+.sidebar-header {
+    padding: 20px;
+    background-color: var(--primary-green);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-links {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+}
+
+.sidebar-links a {
+    padding: 15px 20px;
+    text-decoration: none;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.2s;
+}
+
+.sidebar-links a:hover {
+    background-color: #f0f0f0;
+}
+
+/* Máscara de fundo escuro */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none; 
+    z-index: 999;
+}
+
+.overlay.active {
+    display: block;
+}
+
+.close-btn {
+    cursor: pointer; 
+    padding: 5px;    
+    transition: opacity 0.2s;
+}
+
+.close-btn:hover {
+    opacity: 0.7;    
+}

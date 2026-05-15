@@ -36,5 +36,14 @@ function carregarMercado() {
     });
 }
 
+function toggleMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    
+    // Liga/Desliga a classe active
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
+}
+
 // Inicia a função ao carregar a página
 window.onload = carregarMercado;

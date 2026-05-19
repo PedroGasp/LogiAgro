@@ -22,10 +22,10 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // 1. Inicializar o mapa focado em Santa Rita do Sapucaí por padrão
+        // Inicializar o mapa focado em Santa Rita do Sapucaí por padrão
         const map = L.map('map').setView([-22.2570, -45.7035], 15);
 
-        // 2. Carregar o visual do OpenStreetMap
+        // Carregar o visual do OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
@@ -40,7 +40,7 @@
             fillOpacity: 0.8
         };
 
-        // 3. Buscar os dados do seu servidor Ubuntu para desenhar os pontos
+        // Buscar os dados do seu servidor Ubuntu para desenhar os pontos
         fetch('http://162.243.170.189:3000/api/pontos')
             .then(response => response.json())
             .then(pontos => {

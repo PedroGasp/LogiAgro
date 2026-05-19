@@ -47,3 +47,5 @@ function toggleMenu() {
 
 // Inicia a função ao carregar a página
 window.onload = carregarMercado;
+
+const LOCATIONIQ_TOKEN = "pk.181b861bd05fe927689d4c53e4e07155";

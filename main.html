@@ -44,13 +44,15 @@
 
     <main class="container">
         <section class="top-section">
-            <div class="card monitoramento">
-                <div class="circle-icon">
-                    <span class="material-symbols-outlined pin">location_on</span>
-                </div>
-                <h2>Monitoramento</h2>
-            </div>
             
+            <a href="mapa.html" target="_blank" style="text-decoration: none; color: inherit; display: block; flex: 1;">
+                <div class="card monitoramento" style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer;">
+                    <div class="circle-icon">
+                        <span class="material-symbols-outlined pin">location_on</span>
+                    </div>
+                    <h2>Monitoramento</h2>
+                </div>
+            </a>
             <div class="side-cards">
                 <div class="card mini-card">
                     <span class="material-symbols-outlined red-icon">report</span>
@@ -65,8 +67,7 @@
 
         <section class="mercado-section card">
             <h3>Mercado</h3>
-            <div id="lista-mercado">
-                </div>
+            <div id="lista-mercado"></div>
         </section>
     </main>
 

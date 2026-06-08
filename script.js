@@ -45,6 +45,20 @@ function toggleMenu() {
     overlay.classList.toggle('active');
 }
 
+function abrirLogin() {
+    document.getElementById("loginModal").style.display = "flex";
+}
+
+window.onclick = function(event) {
+
+    let modal = document.getElementById("loginModal");
+
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+
+}
+
 // Inicia a função ao carregar a página
 window.onload = carregarMercado;
 

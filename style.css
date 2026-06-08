@@ -239,3 +239,55 @@ body { background-color: var(--bg-light); color: #333; }
 .close-btn:hover {
     opacity: 0.7;    
 }
+
+#loginModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+
+    justify-content: center;
+    align-items: center;
+}
+
+.login-box {
+    background: white;
+    padding: 30px;
+    width: 320px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    border: 3px solid #2ecc71;
+}
+
+.login-box h2 {
+    color: #2ecc71;
+    margin-bottom: 20px;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 2px solid #2ecc71;
+    border-radius: 8px;
+    outline: none;
+}
+
+.login-box button {
+    width: 100%;
+    padding: 12px;
+    background: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.login-box button:hover {
+    background: #27ae60;
+}

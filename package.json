@@ -4,8 +4,7 @@
   "description": "Projeto para a Feira de tecnologia do Inatel, onde o principal foco desse projeto era faciliar o cotidiano de um trabalhador rural, com o uso de ferramentas de rastreamento, mercado e equipamentos básico para o cuidado de animais.",
   "main": "script.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "concurrently \"node server.js\" \"http-server . -p 8080\""
   },
   "repository": {
     "type": "git",
@@ -20,8 +19,10 @@
   },
   "homepage": "https://github.com/PedroGasp/LogiAgro#readme",
   "dependencies": {
+    "concurrently": "^10.0.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "http-server": "^14.1.1",
     "mysql2": "^3.22.3"
   }
 }

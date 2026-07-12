@@ -3,23 +3,21 @@ const mysql = require('mysql2');
 const cors = require('cors');
 
 const app = express();
-app.use(cors()); // Permite que o Front-end acesse o Back-end
+app.use(cors()); 
 
 const db = mysql.createConnection({
-    host: 'localhost',       // Mantém localhost porque o Node vai rodar dentro do servidor
+    host: 'localhost',       
     user: 'gps_user',
     password: '135Mudar.',
-    database: 'gps_tracker'  // NOME CORRETO DO BANCO
+    database: 'gps_tracker'  
 });
 
-// Rota que o seu Front-end vai chamar
 app.get('/api/pontos', (req, res) => {
-    // QUERY CORRIGIDA COM O NOME DA SUA TABELA
     db.query('SELECT id, device AS nome_ponto, latitude, longitude FROM gps_data', (err, results) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
-        res.json(results); // Envia os dados do MySQL formatados em JSON
+        res.json(results); 
     });
 });
 

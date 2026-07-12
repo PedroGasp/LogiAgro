@@ -17,20 +17,17 @@
 </head>
 <body>
 
-    <a href="#" onclick="window.close();" class="voltar-btn">← Fechar Mapa</a>
+    <a href="#" onclick="history.back(); return false;" class="voltar-btn">← Sair</a>
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Inicializar o mapa focado em Santa Rita do Sapucaí por padrão
         const map = L.map('map').setView([-22.2570, -45.7035], 15);
 
-        // Carregar o visual do OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Estilo personalizado para o ponto azul em formato de círculo
         const estiloPontoAzul = {
             radius: 8,
             fillColor: "#007bff",
@@ -40,7 +37,6 @@
             fillOpacity: 0.8
         };
 
-        // Buscar os dados do seu servidor Ubuntu para desenhar os pontos
         fetch('http://162.243.170.189:3000/api/pontos')
             .then(response => response.json())
             .then(pontos => {

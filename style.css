@@ -156,6 +156,275 @@ body { background-color: var(--bg-light); color: #333; }
     margin-top: 10px;
 }
 
+/* Rebanho page and form */
+.fab {
+    position: fixed;
+    right: 20px;
+    left: auto;
+    bottom: 20px;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background-color: var(--primary-green);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    z-index: 50;
+}
+
+.rebanho-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.rebanho-section {
+    width: 100%;
+    gap: 20px;
+}
+
+.bezerros-list {
+    display: grid;
+    gap: 16px;
+    width: 100%;
+}
+
+.bezerro-card {
+    background: white;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border: 1px solid #eee;
+}
+
+.bezerro-card--sold {
+    background: linear-gradient(135deg, #eefcf1, #f5fff7);
+    border-color: #7bd08d;
+}
+
+.bezerro-card--sick {
+    background: linear-gradient(135deg, #fff2f2, #fff7f7);
+    border-color: #f0a7a7;
+}
+
+.bezerro-card--both {
+    background: linear-gradient(90deg, #eefcf1 50%, #fff2f2 50%);
+    border-color: #b8b8b8;
+}
+
+.bezerro-card__header,
+.bezerro-card__footer,
+.bezerro-card__actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.bezerro-card__actions {
+    justify-content: flex-end;
+}
+
+.bezerro-card__photo {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    background: #f4f7f6;
+}
+
+.bezerro-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.bezerro-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #f5f5f5;
+    font-size: 0.9rem;
+}
+
+.bezerro-action-btn,
+.bezerro-status-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.bezerro-action-btn--edit {
+    background: #e9f7ee;
+    color: #087b2f;
+}
+
+.bezerro-action-btn--delete {
+    background: #fde8e8;
+    color: #b42318;
+}
+
+.bezerro-status-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+}
+
+.bezerro-status-btn--sale {
+    background: #e9f7ee;
+    color: #087b2f;
+}
+
+.bezerro-status-btn--health {
+    background: #fde8e8;
+    color: #b42318;
+}
+
+.bezerro-status-btn.active {
+    box-shadow: inset 0 0 0 2px currentColor;
+}
+
+.form-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    z-index: 200;
+}
+
+.form-modal.active {
+    display: flex;
+}
+
+.form-card {
+    width: min(520px, 100%);
+    background: white;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+    position: relative;
+}
+
+.form-card h2 {
+    margin-bottom: 18px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.form-field label {
+    font-weight: 600;
+    color: #333;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    background: #fafafa;
+}
+
+.upload-area {
+    min-height: 160px;
+    border: 2px dashed #c7d3d8;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 18px;
+    color: #666;
+    cursor: pointer;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+}
+
+.upload-area input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.image-preview {
+    width: 100%;
+    min-height: 160px;
+    border-radius: 14px;
+    background-size: cover;
+    background-position: center;
+    margin-top: 10px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.button-secondary,
+.button-primary {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 18px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.button-secondary {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.button-primary {
+    background: var(--primary-green);
+    color: white;
+}
+
+.close-modal {
+    position: absolute;
+    right: 18px;
+    top: 18px;
+    border: none;
+    background: transparent;
+    color: #666;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .fab { left: 16px; bottom: 16px; }
+}
+
 .badge {
     padding: 5px 12px;
     border-radius: 20px;

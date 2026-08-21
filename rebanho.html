@@ -99,6 +99,19 @@
         </div>
     </div>
 
+    <div id="bezerroDetailModal" class="detail-modal" aria-hidden="true">
+        <div class="detail-modal__backdrop" data-close="true"></div>
+        <div class="detail-modal__content" role="dialog" aria-modal="true" aria-labelledby="bezerroDetailName">
+            <button type="button" class="detail-modal__close" aria-label="Fechar modal" data-close="true">×</button>
+            <img id="bezerroDetailImage" class="detail-modal__image" src="" alt="Imagem do bezerro">
+            <div class="detail-modal__body">
+                <h3 id="bezerroDetailName">Nome do bezerro</h3>
+                <div id="bezerroDetailMeta" class="detail-modal__meta"></div>
+                <button type="button" class="button-primary detail-modal__action" data-close="true">Fechar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>

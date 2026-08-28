@@ -8,6 +8,62 @@
 
 body { background-color: var(--bg-light); color: #333; }
 
+.status-notification {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.36);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.status-notification.active {
+    display: flex;
+}
+
+.status-notification__card {
+    width: min(360px, 100%);
+    padding: 30px 24px 26px;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.2);
+    text-align: center;
+    animation: status-notification-in 0.2s ease-out;
+}
+
+.status-notification__icon {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.status-notification--success .status-notification__icon { background: #087b2f; }
+.status-notification--error .status-notification__icon { background: #b42318; }
+
+.status-notification__message {
+    margin: 0;
+    color: #26352b;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+@keyframes status-notification-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 /* Cabeçalho */
 .main-header {
     background-color: var(--primary-green);

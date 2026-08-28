@@ -58,6 +58,55 @@ function abrirLogin() {
     document.getElementById('loginModal').style.display = 'flex';
 }
 
+let feedbackDismissTimer = null;
+let feedbackClickCleanup = null;
+
+function dismissStatusNotification() {
+    const notification = document.getElementById('statusNotification');
+    if (feedbackDismissTimer) {
+        clearTimeout(feedbackDismissTimer);
+        feedbackDismissTimer = null;
+    }
+    if (feedbackClickCleanup) {
+        feedbackClickCleanup();
+        feedbackClickCleanup = null;
+    }
+    notification?.classList.remove('active');
+}
+
+function showStatusNotification(type, message) {
+    let notification = document.getElementById('statusNotification');
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.id = 'statusNotification';
+        notification.className = 'status-notification';
+        notification.setAttribute('role', 'status');
+        notification.setAttribute('aria-live', 'polite');
+        notification.innerHTML = `
+            <div class="status-notification__card">
+                <div class="status-notification__icon" aria-hidden="true"></div>
+                <p class="status-notification__message"></p>
+            </div>
+        `;
+        document.body.appendChild(notification);
+    }
+
+    dismissStatusNotification();
+    notification.className = `status-notification status-notification--${type} active`;
+    notification.querySelector('.status-notification__icon').textContent = type === 'success' ? '✓' : '✕';
+    notification.querySelector('.status-notification__message').textContent = message;
+
+    feedbackDismissTimer = setTimeout(dismissStatusNotification, 5000);
+    setTimeout(() => {
+        if (!notification.classList.contains('active')) {
+            return;
+        }
+        const handleDocumentClick = () => dismissStatusNotification();
+        document.addEventListener('click', handleDocumentClick, { once: true });
+        feedbackClickCleanup = () => document.removeEventListener('click', handleDocumentClick);
+    }, 0);
+}
+
 async function login(event, formElement) {
     event.preventDefault(); 
     const formData = new FormData(formElement);
@@ -77,8 +126,10 @@ async function login(event, formElement) {
         user = await response.json();
         console.log("Meu usuário: ", user);
         localStorage.setItem('user_id', (user.id).toString());
+        document.getElementById('loginModal').style.display = 'none';
+        showStatusNotification('success', 'Login realizado com sucesso!');
     } catch (error) {
-        alert("Não foi possível realizar o login!");
+        showStatusNotification('error', 'Não foi possível realizar o login.');
         console.error(error);
     }
 
@@ -326,6 +377,7 @@ function openBezerroFormById(id) {
 
 async function submitBezerroForm(event) {
     event.preventDefault();
+    const isEditing = Boolean(currentEditingBezerroId);
 
     const nomeBezerro = document.getElementById('nomeBezerro')?.value.trim();
     const raca = document.getElementById('racaBezerro')?.value;
@@ -359,10 +411,10 @@ async function submitBezerroForm(event) {
 
         await loadBezerros();
         closeBezerroForm();
-        alert(currentEditingBezerroId ? 'Bezerro atualizado com sucesso!' : 'Bezerro cadastrado com sucesso!');
+        showStatusNotification('success', isEditing ? 'Bezerro atualizado com sucesso!' : 'Bezerro cadastrado com sucesso!');
     } catch (err) {
         console.error(err);
-        alert('Não foi possível salvar o bezerro. Tente novamente.');
+        showStatusNotification('error', 'Não foi possível salvar o bezerro. Tente novamente.');
     }
 }
 

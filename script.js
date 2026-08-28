@@ -295,7 +295,7 @@ async function loadBezerros() {
 
         console.log('USER ID: ', userId);
         if(userId == null){
-            alert('Faça o login para visualizar seu rebanho.')
+            showStatusNotification('error', 'Faça o login para visualizar seu rebanho.');
         }
 
         const response = await fetch(`${API_BASE_URL}/api/bezerros_by_user/${userId}`);
@@ -385,7 +385,7 @@ async function submitBezerroForm(event) {
     const idade = document.getElementById('idadeBezerro')?.value.trim();
 
     if (!nomeBezerro || !raca || !peso || !idade) {
-        alert('Por favor, preencha todos os campos antes de enviar.');
+        showStatusNotification('error', 'Por favor, preencha todos os campos antes de enviar.');
         return;
     }
 
@@ -433,7 +433,7 @@ async function deleteBezerro(id) {
         await loadBezerros();
     } catch (err) {
         console.error(err);
-        alert('Não foi possível excluir o bezerro.');
+        showStatusNotification('error', 'Não foi possível excluir o bezerro.');
     }
 }
 
@@ -461,7 +461,7 @@ async function toggleBezerroStatus(id, field) {
         renderBezerros(bezerrosCache);
     } catch (err) {
         console.error(err);
-        alert('Não foi possível atualizar o status do bezerro.');
+        showStatusNotification('error', 'Não foi possível atualizar o status do bezerro.');
     }
 }
 

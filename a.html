@@ -1,4 +1,24 @@
 <script>
+    function showStatusNotification(type, message) {
+      let notification = document.getElementById("statusNotification");
+      if (!notification) {
+        notification = document.createElement("div");
+        notification.id = "statusNotification";
+        notification.style.cssText = "position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.36);backdrop-filter:blur(4px)";
+        notification.innerHTML = '<div style="width:min(360px,100%);padding:30px 24px 26px;border-radius:18px;background:#fff;box-shadow:0 18px 45px rgba(15,23,42,.2);text-align:center"><div class="status-notification-icon" style="width:68px;height:68px;margin:0 auto 16px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:42px;font-weight:700;line-height:1"></div><p class="status-notification-message" style="margin:0;color:#26352b;font-size:1rem;font-weight:600"></p></div>';
+        document.body.appendChild(notification);
+      }
+
+      const icon = notification.querySelector(".status-notification-icon");
+      icon.textContent = type === "success" ? "✓" : "✕";
+      icon.style.background = type === "success" ? "#087b2f" : "#b42318";
+      notification.querySelector(".status-notification-message").textContent = message;
+
+      clearTimeout(notification.dismissTimer);
+      notification.dismissTimer = setTimeout(() => notification.remove(), 5000);
+      setTimeout(() => document.addEventListener("click", () => notification.remove(), { once: true }), 0);
+    }
+
     /*
       FUTURO BANCO DE DADOS:
       Substitua este array pelo retorno da sua API/banco.
@@ -178,7 +198,7 @@
       const animal = animais.find(a => a.id === id);
       if (!animal) return;
 
-      alert(
+      showStatusNotification("success",
         `Animal: ${animal.nome || animal.id}\\n` +
         `Raça: ${animal.raca || "--"}\\n` +
         `Peso: ${animal.peso ?? "--"} kg\\n` +
@@ -191,7 +211,7 @@
       const animal = animais.find(a => a.id === id);
       if (!animal) return;
 
-      alert(`Interesse registrado no animal ${animal.nome || animal.id}.`);
+      showStatusNotification("success", `Interesse registrado no animal ${animal.nome || animal.id}.`);
     }
 
     search.addEventListener("input", filterAnimals);

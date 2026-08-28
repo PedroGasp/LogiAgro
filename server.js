@@ -8,6 +8,8 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '15mb' }));
 
+
+
 const db = mysql.createConnection({
       host: 'logi-agro-logi-agro.e.aivencloud.com',
       port: 18468,
@@ -19,6 +21,45 @@ const db = mysql.createConnection({
         rejectUnauthorized: true // Set to false only if using self-signed certs without strict verification
       }
     });
+
+app.post('/api/user/auth', (req, res) => {
+    let { email, senha } = req.body;
+
+    db.query('SELECT * FROM Usuarios u WHERE u.email = ?', [email], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+
+        if(results.length == 0){
+            return res.status(404).json({ error: "Usuário não existe" });
+        }
+
+        let user = results[0];
+
+        if(user.senha != senha){
+            return res.status(401).json({ error: "Senha incorreta" });
+        }
+
+        res.json(user);
+    });
+});
+
+app.get('/api/bezerros_by_user/:id', (req, res) => {
+    let user_id = req.params.id;
+    db.query('SELECT * FROM bezerros b WHERE b.usuario_id = ? ORDER BY id DESC', [user_id], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        const bezerros = (results || []).map(item => ({
+            ...item,
+            vendido: Number(item.vendido) || 0,
+            doente: Number(item.doente) || 0,
+            peso: Number(item.peso)
+        }));
+
+        res.json(bezerros);
+    });
+});
 
 app.get('/api/pontos', (req, res) => {
     db.query('SELECT id, device AS nome_ponto, latitude, longitude FROM gps_data', (err, results) => {
@@ -51,7 +92,7 @@ app.get('/api/bezerros', (req, res) => {
 app.post('/api/bezerros', (req, res) => {
     const { nome, raca, peso, idade, imagem_base64, vendido = 0, doente = 0 } = req.body;
 
-    if (!nome || !raca || !peso || !idade) {
+    if (!nome || !raca || !peso || !idade || !imagem_base64) {
         return res.status(400).json({ error: 'Campos obrigatórios ausentes.' });
     }
 

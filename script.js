@@ -19,6 +19,7 @@ let bezerrosCache = [];
 let bezerroPhotoBase64 = '';
 let currentEditingBezerroId = null;
 let currentEditingBezerroPhoto = '';
+let bezerroPhotoRemoved = false;
 
 function carregarMercado() {
     const listaContainer = document.getElementById('lista-mercado');
@@ -74,6 +75,7 @@ function resetBezerroForm() {
     currentEditingBezerroId = null;
     currentEditingBezerroPhoto = '';
     bezerroPhotoBase64 = '';
+    bezerroPhotoRemoved = false;
 
     const title = document.getElementById('modalTitle');
     if (title) {
@@ -88,8 +90,9 @@ function resetBezerroForm() {
     const preview = document.getElementById('photoPreview');
     if (preview) {
         preview.style.backgroundImage = '';
-        preview.textContent = 'Clique para selecionar uma imagem';
     }
+
+    updatePhotoPreviewControls(false);
 }
 
 function openBezerroForm(bezerro = null) {
@@ -104,6 +107,7 @@ function openBezerroForm(bezerro = null) {
         currentEditingBezerroId = bezerro.id;
         currentEditingBezerroPhoto = bezerro.imagem_base64 || '';
         bezerroPhotoBase64 = bezerro.imagem_base64 || '';
+        bezerroPhotoRemoved = false;
 
         document.getElementById('bezerroId').value = bezerro.id;
         document.getElementById('nomeBezerro').value = bezerro.nome || '';
@@ -124,8 +128,9 @@ function openBezerroForm(bezerro = null) {
         const preview = document.getElementById('photoPreview');
         if (preview && bezerro.imagem_base64) {
             preview.style.backgroundImage = `url(${bezerro.imagem_base64})`;
-            preview.textContent = '';
         }
+
+        updatePhotoPreviewControls(Boolean(bezerro.imagem_base64));
     }
 
     modal.classList.add('active');
@@ -144,29 +149,61 @@ function handleBezerroPhotoUpload(event) {
     const preview = document.getElementById('photoPreview');
 
     if (!file) {
-        bezerroPhotoBase64 = currentEditingBezerroPhoto || '';
+        bezerroPhotoBase64 = bezerroPhotoRemoved ? '' : currentEditingBezerroPhoto || '';
         if (preview) {
             if (bezerroPhotoBase64) {
                 preview.style.backgroundImage = `url(${bezerroPhotoBase64})`;
-                preview.textContent = '';
             } else {
                 preview.style.backgroundImage = '';
-                preview.textContent = 'Clique para selecionar uma imagem';
             }
         }
+        updatePhotoPreviewControls(Boolean(bezerroPhotoBase64));
         return;
     }
 
     const reader = new FileReader();
     reader.onload = () => {
         bezerroPhotoBase64 = reader.result;
+        bezerroPhotoRemoved = false;
         if (preview) {
             preview.style.backgroundImage = `url(${bezerroPhotoBase64})`;
-            preview.textContent = '';
         }
+        updatePhotoPreviewControls(true);
     };
 
     reader.readAsDataURL(file);
+}
+
+function updatePhotoPreviewControls(hasImage) {
+    const previewText = document.getElementById('photoPreviewText');
+    const removePhotoButton = document.getElementById('removePhotoBtn');
+
+    if (previewText) {
+        previewText.textContent = hasImage ? '' : 'Clique para selecionar uma imagem';
+    }
+
+    if (removePhotoButton) {
+        removePhotoButton.hidden = !hasImage;
+    }
+}
+
+function removeBezerroPhoto(event) {
+    event.stopPropagation();
+    bezerroPhotoBase64 = '';
+    currentEditingBezerroPhoto = '';
+    bezerroPhotoRemoved = true;
+
+    const fileInput = document.getElementById('fotoBezerro');
+    if (fileInput) {
+        fileInput.value = '';
+    }
+
+    const preview = document.getElementById('photoPreview');
+    if (preview) {
+        preview.style.backgroundImage = '';
+    }
+
+    updatePhotoPreviewControls(false);
 }
 
 async function loadBezerros() {
@@ -345,7 +382,7 @@ async function submitBezerroForm(event) {
             raca,
             peso: Number(peso),
             idade,
-            imagem_base64: bezerroPhotoBase64 || currentEditingBezerroPhoto || null
+            imagem_base64: bezerroPhotoRemoved ? null : (bezerroPhotoBase64 || currentEditingBezerroPhoto || null)
         };
 
         const response = await fetch(`${API_BASE_URL}${currentEditingBezerroId ? `/api/bezerros/${currentEditingBezerroId}` : '/api/bezerros'}`, {
@@ -425,6 +462,7 @@ function initRebanhoPage() {
     addButton.addEventListener('click', () => openBezerroForm());
     document.getElementById('closeBezerroModal')?.addEventListener('click', closeBezerroForm);
     document.getElementById('fotoBezerro')?.addEventListener('change', handleBezerroPhotoUpload);
+    document.getElementById('removePhotoBtn')?.addEventListener('click', removeBezerroPhoto);
     document.getElementById('bezerroForm')?.addEventListener('submit', submitBezerroForm);
 
     document.getElementById('bezerroDetailModal')?.addEventListener('click', (event) => {

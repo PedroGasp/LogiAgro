@@ -88,7 +88,10 @@
                 </div>
                 <div class="form-field">
                     <label for="fotoBezerro">Foto do Bezerro</label>
-                    <div id="photoPreview" class="upload-area">Clique para selecionar uma imagem</div>
+                    <div id="photoPreview" class="upload-area">
+                        <button type="button" id="removePhotoBtn" class="remove-photo-btn" aria-label="Remover imagem" title="Remover imagem">×</button>
+                        <span id="photoPreviewText">Clique para selecionar uma imagem</span>
+                    </div>
                     <input id="fotoBezerro" name="fotoBezerro" type="file" accept="image/*">
                 </div>
                 <div class="form-actions">

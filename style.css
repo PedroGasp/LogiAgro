@@ -542,11 +542,44 @@ body { background-color: var(--bg-light); color: #333; }
     background-position: center;
 }
 
+.remove-photo-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    background: rgba(35, 42, 38, 0.78);
+    color: #fff;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-photo-btn:hover {
+    background: #b42318;
+}
+
+.remove-photo-btn[hidden] {
+    display: none;
+}
+
+#photoPreviewText {
+    pointer-events: none;
+}
+
 .upload-area input[type="file"] {
     position: absolute;
     inset: 0;
     opacity: 0;
     cursor: pointer;
+    z-index: 1;
 }
 
 .image-preview {

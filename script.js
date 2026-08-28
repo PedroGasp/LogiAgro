@@ -339,15 +339,15 @@ function renderBezerros(bezerros) {
             : '<div class="card" style="padding: 12px; align-items: flex-start; width: 100%;">Sem foto cadastrada.</div>';
 
         return `
-            <article class="${cardClass.join(' ')}">
+            <article class="${cardClass.join(' ')}" data-id="${bezerro.id}" tabindex="0" role="button" aria-label="Abrir detalhes do bezerro ${escapeHtml(bezerro.nome || 'Sem nome')}">
                 <div class="bezerro-card__header">
                     <div>
                         <h3>${escapeHtml(bezerro.nome || 'Sem nome')}</h3>
                         <p>${escapeHtml(bezerro.raca || 'Raça não informada')}</p>
                     </div>
                     <div class="bezerro-card__actions">
-                        <button type="button" class="bezerro-action-btn bezerro-action-btn--edit" onclick="openBezerroFormById(${bezerro.id})">Editar</button>
-                        <button type="button" class="bezerro-action-btn bezerro-action-btn--delete" onclick="deleteBezerro(${bezerro.id})">Excluir</button>
+                        <button type="button" class="bezerro-action-btn bezerro-action-btn--edit" onclick="event.stopPropagation(); openBezerroFormById(${bezerro.id})">Editar</button>
+                        <button type="button" class="bezerro-action-btn bezerro-action-btn--delete" onclick="event.stopPropagation(); deleteBezerro(${bezerro.id})">Excluir</button>
                     </div>
                 </div>
                 <div class="bezerro-card__meta">
@@ -356,16 +356,77 @@ function renderBezerros(bezerros) {
                 </div>
                 ${imageMarkup}
                 <div class="bezerro-card__footer">
-                    <button type="button" class="bezerro-status-btn bezerro-status-btn--sale ${sold ? 'active' : ''}" onclick="toggleBezerroStatus(${bezerro.id}, 'vendido')" title="Marcar como vendido">
+                    <button type="button" class="bezerro-status-btn bezerro-status-btn--sale ${sold ? 'active' : ''}" onclick="event.stopPropagation(); toggleBezerroStatus(${bezerro.id}, 'vendido')" title="Marcar como vendido">
                         <span class="material-symbols-outlined">attach_money</span>
                     </button>
-                    <button type="button" class="bezerro-status-btn bezerro-status-btn--health ${sick ? 'active' : ''}" onclick="toggleBezerroStatus(${bezerro.id}, 'doente')" title="Marcar como doente">
+                    <button type="button" class="bezerro-status-btn bezerro-status-btn--health ${sick ? 'active' : ''}" onclick="event.stopPropagation(); toggleBezerroStatus(${bezerro.id}, 'doente')" title="Marcar como doente">
                         <span class="material-symbols-outlined">bug_report</span>
                     </button>
                 </div>
             </article>
         `;
     }).join('');
+}
+
+function openBezerroDetail(bezerro) {
+    const modal = document.getElementById('bezerroDetailModal');
+    const image = document.getElementById('bezerroDetailImage');
+    const name = document.getElementById('bezerroDetailName');
+    const meta = document.getElementById('bezerroDetailMeta');
+
+    if (!modal || !image || !name || !meta) {
+        return;
+    }
+
+    const sold = Number(bezerro.vendido) === 1;
+    const sick = Number(bezerro.doente) === 1;
+    image.src = bezerro.imagem_base64 || '';
+    image.alt = `Foto de ${bezerro.nome || 'bezerro'}`;
+    image.hidden = !bezerro.imagem_base64;
+    name.textContent = bezerro.nome || 'Bezerro sem nome';
+    meta.innerHTML = `
+        <span class="detail-tag">${escapeHtml(bezerro.raca || 'Raça não informada')}</span>
+        <span class="detail-tag">Peso: ${escapeHtml(bezerro.peso || 'N/D')} kg</span>
+        <span class="detail-tag">Idade: ${escapeHtml(bezerro.idade || 'N/D')}</span>
+        <span class="detail-tag">${sold ? 'Vendido' : 'Disponível'}</span>
+        <span class="detail-tag">${sick ? 'Doente' : 'Saudável'}</span>
+    `;
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeBezerroDetail() {
+    const modal = document.getElementById('bezerroDetailModal');
+    if (modal) {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+}
+
+function handleBezerroCardClick(event) {
+    const clickedControl = event.target.closest('button, a, input, select, textarea');
+    if (clickedControl) {
+        return;
+    }
+
+    const card = event.target.closest('.bezerro-card');
+    if (!card) {
+        return;
+    }
+
+    const bezerro = bezerrosCache.find(item => Number(item.id) === Number(card.dataset.id));
+    if (bezerro) {
+        openBezerroDetail(bezerro);
+    }
+}
+
+function handleBezerroCardKeydown(event) {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+    }
+
+    event.preventDefault();
+    handleBezerroCardClick(event);
 }
 
 function openBezerroFormById(id) {
@@ -467,6 +528,7 @@ async function toggleBezerroStatus(id, field) {
 
 function initRebanhoPage() {
     const addButton = document.getElementById('addBezerroBtn');
+    const list = document.getElementById('bezerrosList');
     if (!addButton) {
         return;
     }
@@ -476,6 +538,13 @@ function initRebanhoPage() {
     document.getElementById('fotoBezerro')?.addEventListener('change', handleBezerroPhotoUpload);
     document.getElementById('removePhotoBtn')?.addEventListener('click', removeBezerroPhoto);
     document.getElementById('bezerroForm')?.addEventListener('submit', submitBezerroForm);
+    document.getElementById('bezerroDetailModal')?.addEventListener('click', event => {
+        if (event.target.closest('[data-close="true"]')) {
+            closeBezerroDetail();
+        }
+    });
+    list?.addEventListener('click', handleBezerroCardClick);
+    list?.addEventListener('keydown', handleBezerroCardKeydown);
     loadBezerros();
 }
 
@@ -488,6 +557,11 @@ window.onclick = function(event) {
     const bezerroModal = document.getElementById('bezerroModal');
     if (bezerroModal && event.target === bezerroModal) {
         closeBezerroForm();
+    }
+
+    const bezerroDetailModal = document.getElementById('bezerroDetailModal');
+    if (bezerroDetailModal && event.target === bezerroDetailModal) {
+        closeBezerroDetail();
     }
 };
 

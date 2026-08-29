@@ -61,6 +61,238 @@ function abrirLogin() {
 let feedbackDismissTimer = null;
 let feedbackClickCleanup = null;
 
+const notificacoes = [
+    {
+        id: 1,
+        tipo: 'desconto',
+        titulo: 'Desconto',
+        mensagem: 'Bezerros com 15% de desconto!',
+        tempo: 'Há 10 minutos',
+        actionLabel: 'Ver oferta',
+        lida: false
+    },
+    {
+        id: 2,
+        tipo: 'aceita',
+        titulo: 'Oferta aceita',
+        mensagem: 'Sua oferta de compra foi aceita!',
+        tempo: 'Há 1 hora',
+        actionLabel: 'Detalhes',
+        lida: true
+    },
+    {
+        id: 3,
+        tipo: 'negociacao',
+        titulo: 'Interesse de negociação',
+        mensagem: 'Um usuário deseja negociar a compra do seu bezerro.',
+        tempo: 'Hoje',
+        actionLabel: 'Responder',
+        lida: false
+    }
+];
+
+const alertas = [
+    {
+        id: 1,
+        tipo: 'area',
+        titulo: 'Bezerro fora da área',
+        mensagem: 'Um bezerro saiu da área!',
+        tempo: 'Há 5 minutos',
+        actionLabel: 'Ver mapa',
+        lida: false
+    },
+    {
+        id: 2,
+        tipo: 'saude',
+        titulo: 'Bezerro doente',
+        mensagem: 'Um dos seus bezerros está marcado como doente!',
+        tempo: 'Há 25 minutos',
+        actionLabel: 'Ver detalhes',
+        lida: true
+    },
+    {
+        id: 3,
+        tipo: 'bateria',
+        titulo: 'Bateria fraca',
+        mensagem: 'A bateria de um dos seus bezerros está acabando!',
+        tempo: 'Há 1 hora',
+        actionLabel: 'Ver status',
+        lida: false
+    },
+    {
+        id: 4,
+        tipo: 'morte',
+        titulo: 'Possível morte',
+        mensagem: 'Um dos seus bezerros não se movimentou por mais de 15 horas!',
+        tempo: 'Há 2 horas',
+        actionLabel: 'Ver histórico',
+        lida: false
+    }
+];
+
+function renderNotificacoes(filter = 'all') {
+    const list = document.getElementById('notificacoesList');
+    if (!list) {
+        return;
+    }
+
+    const itensFiltrados = notificacoes.filter(item => filter === 'all' || item.tipo === filter);
+
+    if (!itensFiltrados.length) {
+        list.innerHTML = '<div class="card"><p>Nenhuma notificação para este filtro.</p></div>';
+        return;
+    }
+
+    list.innerHTML = itensFiltrados.map(item => {
+        const iconMap = {
+            desconto: 'sell',
+            aceita: 'check_circle',
+            negociacao: 'handshake'
+        };
+
+        return `
+            <article class="notificacao-item notificacao-item--${item.tipo} ${item.lida ? 'is-read' : ''}" data-id="${item.id}">
+                <div class="notification-icon">
+                    <span class="material-symbols-outlined">${iconMap[item.tipo]}</span>
+                </div>
+                <div class="notification-content">
+                    <h3>${escapeHtml(item.titulo)}</h3>
+                    <p>${escapeHtml(item.mensagem)}</p>
+                    <span class="notification-time">${escapeHtml(item.tempo)}</span>
+                </div>
+                <button type="button" class="notification-action" data-id="${item.id}">${escapeHtml(item.actionLabel)}</button>
+            </article>
+        `;
+    }).join('');
+}
+
+function handleNotificationFilterClick(event) {
+    const filterButton = event.target.closest('.notification-filter');
+    if (!filterButton) {
+        return;
+    }
+
+    const filter = filterButton.dataset.filter;
+    document.querySelectorAll('.notification-filter').forEach(button => {
+        button.classList.toggle('is-active', button === filterButton);
+    });
+
+    renderNotificacoes(filter);
+}
+
+function handleNotificationActionClick(event) {
+    const actionButton = event.target.closest('.notification-action');
+    if (!actionButton) {
+        return;
+    }
+
+    const notificationId = Number(actionButton.dataset.id);
+    const notification = notificacoes.find(item => item.id === notificationId);
+    if (!notification) {
+        return;
+    }
+
+    notification.lida = true;
+    const activeFilter = document.querySelector('.notification-filter.is-active')?.dataset.filter || 'all';
+    renderNotificacoes(activeFilter);
+    showStatusNotification('success', `${notification.titulo}: ação realizada.`);
+}
+
+function renderAlertas(filter = 'all') {
+    const list = document.getElementById('alertasList');
+    if (!list) {
+        return;
+    }
+
+    const itensFiltrados = alertas.filter(item => filter === 'all' || item.tipo === filter);
+
+    if (!itensFiltrados.length) {
+        list.innerHTML = '<div class="card"><p>Nenhum alerta para este filtro.</p></div>';
+        return;
+    }
+
+    list.innerHTML = itensFiltrados.map(item => {
+        const iconMap = {
+            area: 'location_searching',
+            saude: 'medical_services',
+            bateria: 'battery_alert',
+            morte: 'warning'
+        };
+
+        return `
+            <article class="notificacao-item notificacao-item--${item.tipo} ${item.lida ? 'is-read' : ''}" data-id="${item.id}">
+                <div class="notification-icon">
+                    <span class="material-symbols-outlined">${iconMap[item.tipo]}</span>
+                </div>
+                <div class="notification-content">
+                    <h3>${escapeHtml(item.titulo)}</h3>
+                    <p>${escapeHtml(item.mensagem)}</p>
+                    <span class="notification-time">${escapeHtml(item.tempo)}</span>
+                </div>
+                <button type="button" class="notification-action" data-id="${item.id}">${escapeHtml(item.actionLabel)}</button>
+            </article>
+        `;
+    }).join('');
+}
+
+function handleAlertaFilterClick(event) {
+    const filterButton = event.target.closest('.notification-filter');
+    if (!filterButton) {
+        return;
+    }
+
+    const filter = filterButton.dataset.filter;
+    document.querySelectorAll('.notification-filter').forEach(button => {
+        button.classList.toggle('is-active', button === filterButton);
+    });
+
+    renderAlertas(filter);
+}
+
+function handleAlertaActionClick(event) {
+    const actionButton = event.target.closest('.notification-action');
+    if (!actionButton) {
+        return;
+    }
+
+    const alertaId = Number(actionButton.dataset.id);
+    const alerta = alertas.find(item => item.id === alertaId);
+    if (!alerta) {
+        return;
+    }
+
+    alerta.lida = true;
+    const activeFilter = document.querySelector('.notification-filter.is-active')?.dataset.filter || 'all';
+    renderAlertas(activeFilter);
+    showStatusNotification('success', `${alerta.titulo}: ação registrada.`);
+}
+
+function initNotificacoesPage() {
+    const list = document.getElementById('notificacoesList');
+    if (!list) {
+        return;
+    }
+
+    renderNotificacoes();
+    document.querySelectorAll('.notification-filter').forEach(button => {
+        button.addEventListener('click', handleNotificationFilterClick);
+    });
+    list.addEventListener('click', handleNotificationActionClick);
+}
+
+function initAlertasPage() {
+    const list = document.getElementById('alertasList');
+    if (!list) {
+        return;
+    }
+
+    renderAlertas();
+    document.querySelectorAll('.notification-filter').forEach(button => {
+        button.addEventListener('click', handleAlertaFilterClick);
+    });
+    list.addEventListener('click', handleAlertaActionClick);
+}
+
 function dismissStatusNotification() {
     const notification = document.getElementById('statusNotification');
     if (feedbackDismissTimer) {
@@ -568,6 +800,8 @@ window.onclick = function(event) {
 window.onload = () => {
     carregarMercado();
     initRebanhoPage();
+    initNotificacoesPage();
+    initAlertasPage();
 };
 
 const LOCATIONIQ_TOKEN = 'pk.181b861bd05fe927689d4c53e4e07155';

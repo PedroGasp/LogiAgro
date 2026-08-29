@@ -437,7 +437,7 @@ body { background-color: var(--bg-light); color: #333; }
 
 .bezerros-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 18px;
     width: 100%;
     align-items: stretch;
@@ -575,13 +575,15 @@ body { background-color: var(--bg-light); color: #333; }
 }
 
 @media (max-width: 1024px) {
-    .bezerros-list {
+    .bezerros-list,
+    .animals-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 640px) {
-    .bezerros-list {
+    .bezerros-list,
+    .animals-grid {
         grid-template-columns: 1fr;
     }
 
@@ -1112,7 +1114,7 @@ body { background-color: var(--bg-light); color: #333; }
 
 .animals-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
 }
 

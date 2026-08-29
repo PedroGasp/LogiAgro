@@ -241,11 +241,14 @@ body { background-color: var(--bg-light); color: #333; }
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
     margin-bottom: 20px;
 }
 
 .rebanho-section {
     width: 100%;
+    max-width: 100%;
     gap: 20px;
 }
 
@@ -434,7 +437,7 @@ body { background-color: var(--bg-light); color: #333; }
 
 .bezerros-list {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 18px;
     width: 100%;
     align-items: stretch;
@@ -452,6 +455,7 @@ body { background-color: var(--bg-light); color: #333; }
     min-height: 100%;
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-width: 0;
 }
 
 .bezerro-card:hover {
@@ -497,6 +501,7 @@ body { background-color: var(--bg-light); color: #333; }
 .bezerro-card__actions {
     justify-content: flex-end;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 .bezerro-card__photo {
@@ -522,6 +527,7 @@ body { background-color: var(--bg-light); color: #333; }
     border-radius: 999px;
     background: #f5f5f5;
     font-size: 0.9rem;
+    overflow-wrap: anywhere;
 }
 
 .bezerro-action-btn,
@@ -592,6 +598,44 @@ body { background-color: var(--bg-light); color: #333; }
 
     .bezerro-status-btn {
         width: 100%;
+        flex-basis: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .rebanho-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .bezerro-card__header,
+    .bezerro-card__footer,
+    .bezerro-card__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .bezerro-card__meta {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .bezerro-pill {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .bezerro-card__photo {
+        height: 180px;
+    }
+
+    .bezerro-action-btn,
+    .bezerro-status-btn {
+        width: 100%;
+    }
+
+    .bezerro-status-btn {
+        min-width: 0;
         flex-basis: 100%;
     }
 }
@@ -667,6 +711,19 @@ body { background-color: var(--bg-light); color: #333; }
     background: #edf3ef;
 }
 
+@media (max-width: 700px) {
+    .detail-modal__content {
+        grid-template-columns: 1fr;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .detail-modal__image {
+        min-height: 260px;
+        max-height: 42vh;
+    }
+}
+
 .detail-modal__body {
     display: flex;
     flex-direction: column;
@@ -734,6 +791,8 @@ body { background-color: var(--bg-light); color: #333; }
 
 .form-card {
     width: min(520px, 100%);
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
     background: white;
     border-radius: 18px;
     padding: 24px;
@@ -838,6 +897,7 @@ body { background-color: var(--bg-light); color: #333; }
     justify-content: flex-end;
     gap: 12px;
     margin-top: 10px;
+    flex-wrap: wrap;
 }
 
 .button-secondary,
@@ -847,6 +907,17 @@ body { background-color: var(--bg-light); color: #333; }
     padding: 12px 18px;
     cursor: pointer;
     font-weight: 600;
+}
+
+@media (max-width: 480px) {
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions .button-secondary,
+    .form-actions .button-primary {
+        width: 100%;
+    }
 }
 
 .button-secondary {

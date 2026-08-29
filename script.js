@@ -62,6 +62,7 @@ async function login(event, formElement) {
     event.preventDefault(); 
     const formData = new FormData(formElement);
     const formObject = Object.fromEntries(formData);
+    
 
     try {
         const response = await fetch(`${API_BASE_URL}/api/user/auth`, {
@@ -77,6 +78,7 @@ async function login(event, formElement) {
         user = await response.json();
         console.log("Meu usuário: ", user);
         localStorage.setItem('user_id', (user.id).toString());
+        window.location.href = "index.html";
     } catch (error) {
         alert("Não foi possível realizar o login!");
         console.error(error);

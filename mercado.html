@@ -41,7 +41,7 @@
             <a href="#"><span class="material-symbols-outlined">notifications</span> Notificações</a>
             <a href="#"><span class="material-symbols-outlined">warning</span> Alertas</a>
             <a href="#"><span class="material-symbols-outlined">store</span> Mercado</a>
-            <a href="#" class="active"><span class="material-symbols-outlined">agriculture</span> Rebanho</a>
+            <a href="rebanho.html" class="active"><span class="material-symbols-outlined">agriculture</span> Rebanho</a>
             <a href="#"><span class="material-symbols-outlined">settings</span> Configurações</a>
             <a href="#"><span class="material-symbols-outlined">help</span> Ajuda</a>
             <a href="#"><span class="material-symbols-outlined">logout</span> Sair</a>
@@ -97,6 +97,210 @@
 
   </main>
 
+<script>
+    /*
+      FUTURO BANCO DE DADOS:
+      Substitua este array pelo retorno da sua API/banco.
+
+      Exemplo:
+      fetch('/api/animais/mercado')
+        .then(r => r.json())
+        .then(animais => renderAnimals(animais));
+    */
+
+    const animais = [
+      {
+        id: "B1",
+        nome: "B1",
+        raca: "Nelore",
+        sexo: "Macho",
+        peso: 190,
+        idade: 2,
+        preco: 4800,
+        foto: null
+      },
+      {
+        id: "B2",
+        nome: "B2",
+        raca: "Angus",
+        sexo: "Macho",
+        peso: 225,
+        idade: 2,
+        preco: 6200,
+        foto: null
+      },
+      {
+        id: "B3",
+        nome: "B3",
+        raca: "Nelore",
+        sexo: "Fêmea",
+        peso: 205,
+        idade: 3,
+        preco: 5100,
+        foto: null
+      },
+      {
+        id: "B4",
+        nome: "B4",
+        raca: "Brahman",
+        sexo: "Macho",
+        peso: 240,
+        idade: 2,
+        preco: 5900,
+        foto: null
+      }
+    ];
+
+    const grid = document.getElementById("animalsGrid");
+    const search = document.getElementById("search");
+    const breedFilter = document.getElementById("breedFilter");
+    const sexFilter = document.getElementById("sexFilter");
+    const count = document.getElementById("count");
+
+    function money(value) {
+      return Number(value).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+    }
+
+    function fillBreeds() {
+      const breeds = [...new Set(animais.map(a => a.raca).filter(Boolean))].sort();
+
+      breeds.forEach(breed => {
+        const option = document.createElement("option");
+        option.value = breed;
+        option.textContent = breed;
+        breedFilter.appendChild(option);
+      });
+    }
+
+    function renderAnimals(list = animais) {
+      grid.innerHTML = "";
+
+      count.textContent =
+        `${list.length} animal${list.length === 1 ? "" : "is"} disponível${list.length === 1 ? "" : "e"} para o mercado`;
+
+      if (!list.length) {
+        grid.innerHTML = `
+          <div style="grid-column:1/-1; background:white; border-radius:12px;
+                      padding:30px; text-align:center; color:#78909c;
+                      box-shadow:0 3px 10px rgba(0,0,0,.07);">
+            Nenhum animal encontrado.
+          </div>
+        `;
+        return;
+      }
+
+      list.forEach(animal => {
+        const card = document.createElement("article");
+        card.className = "animal-card";
+
+        card.innerHTML = `
+          <div class="animal-top">
+            <div>
+              <h2 class="animal-name">${animal.nome || animal.id}</h2>
+              <div class="animal-breed">${animal.raca || "Raça não informada"}</div>
+            </div>
+            <span class="status">Disponível</span>
+          </div>
+
+          <div class="photo">
+            ${
+              animal.foto
+                ? `<img src="${animal.foto}" alt="Foto de ${animal.nome || animal.id}">`
+                : "Sem foto cadastrada."
+            }
+          </div>
+
+          <div class="info">
+            <div class="info-item">
+              <span class="label">Peso</span>
+              <strong>${animal.peso ?? "--"} kg</strong>
+            </div>
+
+            <div class="info-item">
+              <span class="label">Idade</span>
+              <strong>${animal.idade ?? "--"} ano${animal.idade == 1 ? "" : "s"}</strong>
+            </div>
+
+            <div class="info-item">
+              <span class="label">Sexo</span>
+              <strong>${animal.sexo || "--"}</strong>
+            </div>
+
+            <div class="info-item">
+              <span class="label">Identificação</span>
+              <strong>${animal.id || "--"}</strong>
+            </div>
+          </div>
+
+          <div class="price-label">Valor de venda</div>
+          <div class="price">${animal.preco != null ? money(animal.preco) : "A consultar"}</div>
+
+          <div class="card-actions">
+            <button class="btn btn-details" onclick="showDetails('${animal.id}')">
+              Detalhes
+            </button>
+            <button class="btn btn-interest" onclick="showInterest('${animal.id}')">
+              Tenho interesse
+            </button>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    function filterAnimals() {
+      const term = search.value.toLowerCase().trim();
+      const breed = breedFilter.value;
+      const sex = sexFilter.value;
+
+      const filtered = animais.filter(animal => {
+        const matchesSearch =
+          !term ||
+          String(animal.id || "").toLowerCase().includes(term) ||
+          String(animal.nome || "").toLowerCase().includes(term) ||
+          String(animal.raca || "").toLowerCase().includes(term);
+
+        const matchesBreed = !breed || animal.raca === breed;
+        const matchesSex = !sex || animal.sexo === sex;
+
+        return matchesSearch && matchesBreed && matchesSex;
+      });
+
+      renderAnimals(filtered);
+    }
+
+    function showDetails(id) {
+      const animal = animais.find(a => a.id === id);
+      if (!animal) return;
+
+      alert(
+        `Animal: ${animal.nome || animal.id}\\n` +
+        `Raça: ${animal.raca || "--"}\\n` +
+        `Peso: ${animal.peso ?? "--"} kg\\n` +
+        `Idade: ${animal.idade ?? "--"} anos\\n` +
+        `Valor: ${animal.preco != null ? money(animal.preco) : "A consultar"}`
+      );
+    }
+
+    function showInterest(id) {
+      const animal = animais.find(a => a.id === id);
+      if (!animal) return;
+
+      alert(`Interesse registrado no animal ${animal.nome || animal.id}.`);
+    }
+
+    search.addEventListener("input", filterAnimals);
+    breedFilter.addEventListener("change", filterAnimals);
+    sexFilter.addEventListener("change", filterAnimals);
+
+    fillBreeds();
+    renderAnimals();
+
+  </script>
 
   <script src="script.js"></script>
 

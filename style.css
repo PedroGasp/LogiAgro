@@ -1031,6 +1031,18 @@ body { background-color: var(--bg-light); color: #333; }
     opacity: 0.7;    
 }
 
+#loginInicial {
+
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding-top: 100px;
+    background-color: #f5f5f5;
+}
+
+
 #loginModal {
     display: none;
     position: fixed;

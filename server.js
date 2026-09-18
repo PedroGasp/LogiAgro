@@ -44,6 +44,20 @@ app.post('/api/user/auth', (req, res) => {
     });
 });
 
+app.get('/api/user/:id', (req, res) => {
+    db.query('SELECT * FROM Usuarios WHERE id = ?', [req.params.id], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Usuário não existe' });
+        }
+
+        res.json(results[0]);
+    });
+});
+
 app.get('/api/bezerros_by_user/:id', (req, res) => {
     let user_id = req.params.id;
     db.query('SELECT * FROM bezerros b WHERE b.usuario_id = ? ORDER BY id DESC', [user_id], (err, results) => {
@@ -89,15 +103,89 @@ app.get('/api/bezerros', (req, res) => {
     });
 });
 
-app.post('/api/bezerros', (req, res) => {
-    const { nome, raca, peso, idade, imagem_base64, vendido = 0, doente = 0 } = req.body;
 
-    if (!nome || !raca || !peso || !idade || !imagem_base64) {
+app.get('/api/mercado', (req, res) => {
+    db.query('SHOW COLUMNS FROM bezerros', (columnsError, columnsResult) => {
+        if (columnsError) {
+            return res.status(500).json({ error: columnsError.message });
+        }
+
+        const columns = new Set((columnsResult || []).map(column => column.Field));
+        const hasSex = columns.has('sexo');
+        const hasPrice = columns.has('preco');
+        const conditions = ['b.vendido = 1'];
+        const values = [];
+        const { busca, raca, sexo, idade, preco } = req.query;
+
+        if (busca) {
+            conditions.push('(b.id LIKE ? OR b.nome LIKE ? OR b.raca LIKE ?)');
+            const searchTerm = `%${busca}%`;
+            values.push(searchTerm, searchTerm, searchTerm);
+        }
+        if (raca) {
+            conditions.push('b.raca = ?');
+            values.push(raca);
+        }
+        if (sexo && hasSex) {
+            const sexValue = sexo === '0' || sexo === '1' ? Number(sexo) : null;
+            if (sexValue !== null) {
+                conditions.push('b.sexo = ?');
+                values.push(sexValue);
+            }
+        }
+        if (idade === '1' || idade === '2') {
+            conditions.push('b.idade = ?');
+            values.push(Number(idade));
+        } else if (idade === '3+') {
+            conditions.push('b.idade >= ?');
+            values.push(3);
+        }
+
+        const priceSort = hasPrice && preco === 'Crescente'
+            ? 'b.preco ASC'
+            : hasPrice && preco === 'Decrescente'
+                ? 'b.preco DESC'
+                : 'b.id DESC';
+        const priceField = hasPrice ? 'b.preco' : 'NULL';
+        const query = `
+            SELECT b.id, b.nome, b.raca,
+                   ${hasSex ? "CASE b.sexo WHEN 0 THEN 'Macho' WHEN 1 THEN 'Fêmea' END" : "NULL"} AS sexo,
+                   b.peso, b.idade, ${priceField} AS preco,
+                   b.doente,
+                   b.usuario_id AS proprietario_id,
+                   b.imagem_base64 AS foto
+            FROM bezerros b
+            WHERE ${conditions.join(' AND ')}
+            ORDER BY ${priceSort}`;
+
+        db.query(query, values, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+
+        const mercado = (results || []).map(item => ({
+            ...item,
+            peso: item.peso == null ? null : Number(item.peso),
+            idade: item.idade == null ? null : Number(item.idade),
+            preco: item.preco == null ? null : Number(item.preco),
+            doente: Number(item.doente) || 0,
+            proprietario_id: item.proprietario_id == null ? null : Number(item.proprietario_id)
+        }));
+
+        res.json(mercado);
+        });
+    });
+});
+
+app.post('/api/bezerros', (req, res) => {
+    const { nome, raca, peso, idade, sexo, imagem_base64, preco = null, vendido = 0, doente = 0 } = req.body;
+
+    if (!nome || !raca || !peso || !idade || (sexo !== 0 && sexo !== 1) || !imagem_base64) {
         return res.status(400).json({ error: 'Campos obrigatórios ausentes.' });
     }
 
-    const query = 'INSERT INTO bezerros (nome, raca, peso, idade, imagem_base64, vendido, doente) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    const values = [nome, raca, peso, idade, imagem_base64 || null, Number(vendido), Number(doente)];
+    const query = 'INSERT INTO bezerros (nome, raca, peso, idade, sexo, imagem_base64, preco, vendido, doente) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    const values = [nome, raca, peso, idade, Number(sexo), imagem_base64 || null, preco === null ? null : Number(preco), Number(vendido), Number(doente)];
 
     db.query(query, values, (err, result) => {
         if (err) {
@@ -128,6 +216,10 @@ app.put('/api/bezerros/:id', (req, res) => {
         fields.push('idade = ?');
         values.push(req.body.idade);
     }
+    if (req.body.sexo !== undefined && (req.body.sexo === 0 || req.body.sexo === 1)) {
+        fields.push('sexo = ?');
+        values.push(Number(req.body.sexo));
+    }
     if (req.body.imagem_base64 !== undefined) {
         fields.push('imagem_base64 = ?');
         values.push(req.body.imagem_base64 || null);
@@ -139,6 +231,10 @@ app.put('/api/bezerros/:id', (req, res) => {
     if (req.body.doente !== undefined) {
         fields.push('doente = ?');
         values.push(Number(req.body.doente));
+    }
+    if (req.body.preco !== undefined) {
+        fields.push('preco = ?');
+        values.push(req.body.preco === null ? null : Number(req.body.preco));
     }
 
     if (fields.length === 0) {

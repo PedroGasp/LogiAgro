@@ -16,40 +16,19 @@
             <span class="material-symbols-outlined close-btn" onclick="toggleMenu()">close</span>
         </div>
         <nav class="sidebar-links">
-            <a href="index.html"><span class="material-symbols-outlined">home</span> Início</a>
-            <a href="alertas.html"><span class="material-symbols-outlined">notifications</span> Notificações</a>
+            <a href="dashboard.html"><span class="material-symbols-outlined">home</span> Início</a>
+            <a href="notificacoes.html"><span class="material-symbols-outlined">notifications</span> Notificações</a>
             <a href="alertas.html"><span class="material-symbols-outlined">warning</span> Alertas</a>
-            <a href="rebanho.html"><span class="material-symbols-outlined">agriculture</span> Rebanho</a>
             <a href="mercado.html" class="active"><span class="material-symbols-outlined">store</span> Mercado</a>
-            <a href="#"><span class="material-symbols-outlined">settings</span> Configurações</a>
-            <a href="#"><span class="material-symbols-outlined">help</span> Ajuda</a>
-            <a href="#"><span class="material-symbols-outlined">logout</span> Sair</a>
+            <a href="rebanho.html"><span class="material-symbols-outlined">agriculture</span> Rebanho</a>
+            <a href="configuracoes.html"><span class="material-symbols-outlined">settings</span> Configurações</a>
+            <a href="ajuda.html"><span class="material-symbols-outlined">help</span> Ajuda</a>
+            <a href="index.html" onclick="logout(); return false;"><span class="material-symbols-outlined">logout</span> Sair</a>
         </nav>
   </div>
 
   <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
   
-  <header class="header">
-
-        <div id="sidebar" class="sidebar">
-        <div class="sidebar-header">
-            <h2>Opções</h2>
-            <span class="material-symbols-outlined close-btn" onclick="toggleMenu()">close</span>
-        </div>
-        <nav class="sidebar-links">
-            <a href="index.html"><span class="material-symbols-outlined">home</span> Início</a>
-            <a href="#"><span class="material-symbols-outlined">notifications</span> Notificações</a>
-            <a href="#"><span class="material-symbols-outlined">warning</span> Alertas</a>
-            <a href="#"><span class="material-symbols-outlined">store</span> Mercado</a>
-            <a href="rebanho.html" class="active"><span class="material-symbols-outlined">agriculture</span> Rebanho</a>
-            <a href="#"><span class="material-symbols-outlined">settings</span> Configurações</a>
-            <a href="#"><span class="material-symbols-outlined">help</span> Ajuda</a>
-            <a href="#"><span class="material-symbols-outlined">logout</span> Sair</a>
-        </nav>
-    </div>
-
-    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
-
     <header class="main-header">
         <div class="icon-btn" onclick="toggleMenu()">
             <span class="material-symbols-outlined">menu</span>
@@ -84,78 +63,45 @@
 
       <select id="sexFilter" class="filter">
         <option value="">Todos os sexos</option>
-        <option value="Macho">Machos</option>
-        <option value="Fêmea">Fêmeas</option>
+        <option value="0">Machos</option>
+        <option value="1">Fêmeas</option>
       </select>
 
-      <div id="count" class="market-count"></div>
+      <select id="priceFilter" class="filter">
+        <option value="">Preço</option>
+        <option value="Crescente">Crescente</option>
+        <option value="Decrescente">Decrescente</option>
+      </select>
+
+            <select id="ageFilter" class="filter">
+        <option value="">Idade</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3+">3+</option>
+      </select>
+
     </section>
 
+    <div id="count" class="market-count"></div>
+
     <section id="animalsGrid" class="animals-grid"></section>
-    <button class="fab" title="Adicionar ao mercado">+</button>
+    
 
 
   </main>
 
 <script>
-    /*
-      FUTURO BANCO DE DADOS:
-      Substitua este array pelo retorno da sua API/banco.
-
-      Exemplo:
-      fetch('/api/animais/mercado')
-        .then(r => r.json())
-        .then(animais => renderAnimals(animais));
-    */
-
-    const animais = [
-      {
-        id: "B1",
-        nome: "B1",
-        raca: "Nelore",
-        sexo: "Macho",
-        peso: 190,
-        idade: 2,
-        preco: 4800,
-        foto: null
-      },
-      {
-        id: "B2",
-        nome: "B2",
-        raca: "Angus",
-        sexo: "Macho",
-        peso: 225,
-        idade: 2,
-        preco: 6200,
-        foto: null
-      },
-      {
-        id: "B3",
-        nome: "B3",
-        raca: "Nelore",
-        sexo: "Fêmea",
-        peso: 205,
-        idade: 3,
-        preco: 5100,
-        foto: null
-      },
-      {
-        id: "B4",
-        nome: "B4",
-        raca: "Brahman",
-        sexo: "Macho",
-        peso: 240,
-        idade: 2,
-        preco: 5900,
-        foto: null
-      }
-    ];
+    const animais = [];
+    const mercadoApi = "http://localhost:3000/api/mercado";
 
     const grid = document.getElementById("animalsGrid");
     const search = document.getElementById("search");
     const breedFilter = document.getElementById("breedFilter");
     const sexFilter = document.getElementById("sexFilter");
+    const priceFilter = document.getElementById("priceFilter");
+    const ageFilter = document.getElementById("ageFilter");
     const count = document.getElementById("count");
+    const loggedUserId = localStorage.getItem("user_id");
 
     function money(value) {
       return Number(value).toLocaleString("pt-BR", {
@@ -164,15 +110,18 @@
       });
     }
 
-    function fillBreeds() {
-      const breeds = [...new Set(animais.map(a => a.raca).filter(Boolean))].sort();
+    function fillBreeds(list) {
+      const selectedBreed = breedFilter.value;
+      const breeds = [...new Set(list.map(a => a.raca).filter(Boolean))].sort();
 
+      breedFilter.innerHTML = '<option value="">Todas as raças</option>';
       breeds.forEach(breed => {
         const option = document.createElement("option");
         option.value = breed;
         option.textContent = breed;
         breedFilter.appendChild(option);
       });
+      breedFilter.value = breeds.includes(selectedBreed) ? selectedBreed : "";
     }
 
     function renderAnimals(list = animais) {
@@ -194,7 +143,8 @@
 
       list.forEach(animal => {
         const card = document.createElement("article");
-        card.className = "animal-card";
+        const sick = Number(animal.doente) === 1;
+        card.className = `animal-card${sick ? " animal-card--sick" : ""}`;
 
         card.innerHTML = `
           <div class="animal-top">
@@ -236,15 +186,25 @@
           </div>
 
           <div class="price-label">Valor de venda</div>
-          <div class="price">${animal.preco != null ? money(animal.preco) : "A consultar"}</div>
+          <div class="price-row">
+            <div class="price">${animal.preco != null ? money(animal.preco) : "A consultar"}</div>
+            ${sick ? `
+              <span class="animal-sick-indicator" title="Animal doente" aria-label="Animal doente">
+                <span>Doente</span>
+                <span class="material-symbols-outlined">bug_report</span>
+              </span>
+            ` : ""}
+          </div>
 
           <div class="card-actions">
             <button class="btn btn-details" onclick="showDetails('${animal.id}')">
               Detalhes
             </button>
-            <button class="btn btn-interest" onclick="showInterest('${animal.id}')">
-              Tenho interesse
-            </button>
+            ${loggedUserId !== null && Number(animal.proprietario_id) === Number(loggedUserId) ? "" : `
+              <button class="btn btn-interest" onclick="showInterest('${animal.id}')">
+                Tenho interesse
+              </button>
+            `}
           </div>
         `;
 
@@ -252,25 +212,37 @@
       });
     }
 
-    function filterAnimals() {
-      const term = search.value.toLowerCase().trim();
-      const breed = breedFilter.value;
-      const sex = sexFilter.value;
+    async function filterAnimals() {
+      const params = new URLSearchParams();
+      const filters = {
+        busca: search.value.trim(),
+        raca: breedFilter.value,
+        sexo: sexFilter.value,
+        preco: priceFilter.value,
+        idade: ageFilter.value
+      };
 
-      const filtered = animais.filter(animal => {
-        const matchesSearch =
-          !term ||
-          String(animal.id || "").toLowerCase().includes(term) ||
-          String(animal.nome || "").toLowerCase().includes(term) ||
-          String(animal.raca || "").toLowerCase().includes(term);
-
-        const matchesBreed = !breed || animal.raca === breed;
-        const matchesSex = !sex || animal.sexo === sex;
-
-        return matchesSearch && matchesBreed && matchesSex;
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) params.set(key, value);
       });
 
-      renderAnimals(filtered);
+      grid.innerHTML = '<div class="market-loading">Carregando animais...</div>';
+      count.textContent = "";
+
+      try {
+        const response = await fetch(`${mercadoApi}?${params.toString()}`);
+        if (!response.ok) {
+          throw new Error("Não foi possível carregar os animais.");
+        }
+
+        const result = await response.json();
+        animais.splice(0, animais.length, ...result);
+        fillBreeds(result);
+        renderAnimals(result);
+      } catch (error) {
+        grid.innerHTML = `<div class="market-loading">${error.message}</div>`;
+        count.textContent = "";
+      }
     }
 
     function showDetails(id) {
@@ -280,6 +252,7 @@
       alert(
         `Animal: ${animal.nome || animal.id}\\n` +
         `Raça: ${animal.raca || "--"}\\n` +
+        `Sexo: ${animal.sexo || "--"}\\n` +
         `Peso: ${animal.peso ?? "--"} kg\\n` +
         `Idade: ${animal.idade ?? "--"} anos\\n` +
         `Valor: ${animal.preco != null ? money(animal.preco) : "A consultar"}`
@@ -296,9 +269,10 @@
     search.addEventListener("input", filterAnimals);
     breedFilter.addEventListener("change", filterAnimals);
     sexFilter.addEventListener("change", filterAnimals);
+    priceFilter.addEventListener("change", filterAnimals);
+    ageFilter.addEventListener("change", filterAnimals);
 
-    fillBreeds();
-    renderAnimals();
+    filterAnimals();
 
   </script>
 

@@ -55,7 +55,53 @@ function toggleMenu() {
 }
 
 function abrirLogin() {
-    document.getElementById('loginModal').style.display = 'flex';
+    const modal = ensureLoginModal();
+    modal.style.display = 'flex';
+    carregarUsuarioSessao();
+}
+
+function ensureLoginModal() {
+    let modal = document.getElementById('loginModal');
+    if (modal) {
+        return modal;
+    }
+
+    modal = document.createElement('div');
+    modal.id = 'loginModal';
+    modal.innerHTML = `
+        <div class="login-box">
+            <h2 id="sessionUserName">Usuário</h2>
+            <button type="button" onclick="logout()">Logout</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    return modal;
+}
+
+function logout() {
+    localStorage.removeItem('user_id');
+    window.location.href = 'index.html';
+}
+
+async function carregarUsuarioSessao() {
+    const userId = localStorage.getItem('user_id');
+    const nameElement = document.getElementById('sessionUserName');
+    if (!userId || !nameElement) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/user/${userId}`);
+        if (!response.ok) {
+            throw new Error('Não foi possível carregar o usuário.');
+        }
+
+        const user = await response.json();
+        nameElement.textContent = user.nome || user.nome_usuario || user.name || user.email || 'Usuário';
+    } catch (error) {
+        console.error(error);
+        nameElement.textContent = 'Usuário';
+    }
 }
 
 let feedbackDismissTimer = null;
@@ -359,7 +405,7 @@ async function login(event, formElement) {
         user = await response.json();
         console.log("Meu usuário: ", user);
         localStorage.setItem('user_id', (user.id).toString());
-        window.location.href = "index.html";
+        window.location.href = "dashboard.html";
     } catch (error) {
         showStatusNotification('error', 'Não foi possível realizar o login.');
         console.error(error);
@@ -424,6 +470,7 @@ function openBezerroForm(bezerro = null) {
         document.getElementById('racaBezerro').value = bezerro.raca || '';
         document.getElementById('pesoBezerro').value = bezerro.peso || '';
         document.getElementById('idadeBezerro').value = bezerro.idade || '';
+        document.getElementById('sexoBezerro').value = bezerro.sexo === null || bezerro.sexo === undefined ? '' : String(bezerro.sexo);
 
         const title = document.getElementById('modalTitle');
         if (title) {
@@ -522,6 +569,8 @@ async function loadBezerros() {
         return;
     }
 
+    list.innerHTML = '<div class="bezerros-loading" role="status">Carregando bezerros...</div>';
+
     try {
         const userId = localStorage.getItem('user_id');
 
@@ -585,10 +634,11 @@ function renderBezerros(bezerros) {
                 <div class="bezerro-card__meta">
                     <span class="bezerro-pill">Peso: ${escapeHtml(bezerro.peso || 'N/D')} kg</span>
                     <span class="bezerro-pill">Idade: ${escapeHtml(bezerro.idade || 'N/D')}</span>
+                    <span class="bezerro-pill">Sexo: ${Number(bezerro.sexo) === 1 ? 'Fêmea' : Number(bezerro.sexo) === 0 ? 'Macho' : 'N/D'}</span>
                 </div>
                 ${imageMarkup}
                 <div class="bezerro-card__footer">
-                    <button type="button" class="bezerro-status-btn bezerro-status-btn--sale ${sold ? 'active' : ''}" onclick="event.stopPropagation(); toggleBezerroStatus(${bezerro.id}, 'vendido')" title="Marcar como vendido">
+                    <button type="button" class="bezerro-status-btn bezerro-status-btn--sale ${sold ? 'active' : ''}" onclick="event.stopPropagation(); handleSaleButton(${bezerro.id})" title="${sold ? 'Remover do mercado' : 'Definir preço de venda'}">
                         <span class="material-symbols-outlined">attach_money</span>
                     </button>
                     <button type="button" class="bezerro-status-btn bezerro-status-btn--health ${sick ? 'active' : ''}" onclick="event.stopPropagation(); toggleBezerroStatus(${bezerro.id}, 'doente')" title="Marcar como doente">
@@ -676,8 +726,9 @@ async function submitBezerroForm(event) {
     const raca = document.getElementById('racaBezerro')?.value;
     const peso = document.getElementById('pesoBezerro')?.value.trim();
     const idade = document.getElementById('idadeBezerro')?.value.trim();
+    const sexo = document.getElementById('sexoBezerro')?.value;
 
-    if (!nomeBezerro || !raca || !peso || !idade) {
+    if (!nomeBezerro || !raca || !peso || !idade || (sexo !== '0' && sexo !== '1')) {
         showStatusNotification('error', 'Por favor, preencha todos os campos antes de enviar.');
         return;
     }
@@ -688,6 +739,7 @@ async function submitBezerroForm(event) {
             raca,
             peso: Number(peso),
             idade,
+            sexo: Number(sexo),
             imagem_base64: bezerroPhotoRemoved ? null : (bezerroPhotoBase64 || currentEditingBezerroPhoto || null)
         };
 
@@ -758,6 +810,98 @@ async function toggleBezerroStatus(id, field) {
     }
 }
 
+function openPrecoModal(id) {
+    const bezerro = bezerrosCache.find(item => Number(item.id) === Number(id));
+    const modal = document.getElementById('precoModal');
+    const input = document.getElementById('precoBezerro');
+    const form = document.getElementById('precoForm');
+
+    if (!bezerro || !modal || !input || !form) {
+        return;
+    }
+
+    form.dataset.bezerroId = String(id);
+    input.value = bezerro.preco ?? '';
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    input.focus();
+}
+
+async function handleSaleButton(id) {
+    const bezerro = bezerrosCache.find(item => Number(item.id) === Number(id));
+    if (!bezerro) {
+        return;
+    }
+
+    if (Number(bezerro.vendido) === 1) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/bezerros/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ vendido: 0, preco: null })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || error.error || 'Erro ao remover bezerro do mercado.');
+            }
+
+            bezerro.vendido = 0;
+            bezerro.preco = null;
+            renderBezerros(bezerrosCache);
+            showStatusNotification('success', 'Bezerro removido do mercado.');
+        } catch (error) {
+            console.error(error);
+            showStatusNotification('error', 'Não foi possível remover o bezerro do mercado.');
+        }
+        return;
+    }
+
+    openPrecoModal(id);
+}
+
+function closePrecoModal() {
+    const modal = document.getElementById('precoModal');
+    const form = document.getElementById('precoForm');
+    if (modal) {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+    form?.reset();
+}
+
+async function submitPrecoForm(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const id = form.dataset.bezerroId;
+    const preco = Number(document.getElementById('precoBezerro')?.value);
+
+    if (!id || !Number.isFinite(preco) || preco < 0) {
+        showStatusNotification('error', 'Informe um preço válido.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/bezerros/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ preco, vendido: 1 })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || error.error || 'Erro ao definir preço.');
+        }
+
+        closePrecoModal();
+        await loadBezerros();
+        showStatusNotification('success', 'Preço salvo e bezerro disponibilizado no mercado.');
+    } catch (error) {
+        console.error(error);
+        showStatusNotification('error', 'Não foi possível salvar o preço.');
+    }
+}
+
 function initRebanhoPage() {
     const addButton = document.getElementById('addBezerroBtn');
     const list = document.getElementById('bezerrosList');
@@ -770,6 +914,9 @@ function initRebanhoPage() {
     document.getElementById('fotoBezerro')?.addEventListener('change', handleBezerroPhotoUpload);
     document.getElementById('removePhotoBtn')?.addEventListener('click', removeBezerroPhoto);
     document.getElementById('bezerroForm')?.addEventListener('submit', submitBezerroForm);
+    document.getElementById('precoForm')?.addEventListener('submit', submitPrecoForm);
+    document.getElementById('closePrecoModal')?.addEventListener('click', closePrecoModal);
+    document.getElementById('cancelPrecoBtn')?.addEventListener('click', closePrecoModal);
     document.getElementById('bezerroDetailModal')?.addEventListener('click', event => {
         if (event.target.closest('[data-close="true"]')) {
             closeBezerroDetail();
@@ -795,9 +942,16 @@ window.onclick = function(event) {
     if (bezerroDetailModal && event.target === bezerroDetailModal) {
         closeBezerroDetail();
     }
+
+    const precoModal = document.getElementById('precoModal');
+    if (precoModal && event.target === precoModal) {
+        closePrecoModal();
+    }
 };
 
 window.onload = () => {
+    ensureLoginModal();
+    carregarUsuarioSessao();
     carregarMercado();
     initRebanhoPage();
     initNotificacoesPage();

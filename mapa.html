@@ -37,6 +37,19 @@
             fillOpacity: 0.8
         };
 
+        const pontosExemplo = [
+            { latitude: -22.2570, longitude: -45.7035 },
+            { latitude: -22.2555, longitude: -45.7018 },
+            { latitude: -22.2582, longitude: -45.7052 },
+            { latitude: -22.2595, longitude: -45.7025 }
+        ];
+
+        pontosExemplo.forEach((ponto, indice) => {
+            L.circleMarker([ponto.latitude, ponto.longitude], estiloPontoAzul)
+                .addTo(map)
+                .bindPopup(`<b>Ponto de exemplo ${indice + 1}</b><br>Latitude: ${ponto.latitude}<br>Longitude: ${ponto.longitude}`);
+        });
+
         fetch('http://162.243.170.189:3000/api/pontos')
             .then(response => response.json())
             .then(pontos => {
@@ -52,7 +65,7 @@
                     }
                 });
             })
-            .catch(err => console.error("Erro ao carregar pontos no mapa:", err));
+            .catch(err => console.error("Erro ao carregar pontos no mapa:", err));         
     </script>
 </body>
 </html>

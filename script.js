@@ -585,7 +585,8 @@ async function loadBezerros() {
         }
 
         bezerrosCache = await response.json();
-        renderBezerros(bezerrosCache);
+        fillRebanhoBreeds();
+        filterRebanho();
     } catch (error) {
         console.error(error);
         list.innerHTML = '<div class="card"><p>Não foi possível carregar os bezerros.</p></div>';
@@ -648,6 +649,68 @@ function renderBezerros(bezerros) {
             </article>
         `;
     }).join('');
+}
+
+function fillRebanhoBreeds() {
+    const breedFilter = document.getElementById('breedFilter');
+    if (!breedFilter) {
+        return;
+    }
+
+    const selectedBreed = breedFilter.value;
+    const breeds = [...new Set(bezerrosCache.map(bezerro => bezerro.raca).filter(Boolean))].sort();
+    breedFilter.innerHTML = '<option value="">Todas as raças</option>';
+
+    breeds.forEach(breed => {
+        const option = document.createElement('option');
+        option.value = breed;
+        option.textContent = breed;
+        breedFilter.appendChild(option);
+    });
+
+    breedFilter.value = breeds.includes(selectedBreed) ? selectedBreed : '';
+}
+
+function filterRebanho() {
+    const search = document.getElementById('search');
+    const breedFilter = document.getElementById('breedFilter');
+    const sexFilter = document.getElementById('sexFilter');
+    const priceFilter = document.getElementById('priceFilter');
+    const ageFilter = document.getElementById('ageFilter');
+    const count = document.getElementById('count');
+
+    if (!search || !breedFilter || !sexFilter || !priceFilter || !ageFilter || !count) {
+        return;
+    }
+
+    const searchTerm = search.value.trim().toLowerCase();
+    const selectedBreed = breedFilter.value;
+    const selectedSex = sexFilter.value;
+    const selectedAge = ageFilter.value;
+
+    const filteredBezerros = bezerrosCache.filter(bezerro => {
+        const searchableText = [bezerro.id, bezerro.nome, bezerro.raca]
+            .filter(value => value != null)
+            .join(' ')
+            .toLowerCase();
+        const age = Number.parseFloat(String(bezerro.idade).replace(',', '.'));
+
+        const matchesSearch = !searchTerm || searchableText.includes(searchTerm);
+        const matchesBreed = !selectedBreed || bezerro.raca === selectedBreed;
+        const matchesSex = !selectedSex || String(bezerro.sexo) === selectedSex;
+        const matchesAge = !selectedAge || (selectedAge === '3+' ? age >= 3 : age === Number(selectedAge));
+
+        return matchesSearch && matchesBreed && matchesSex && matchesAge;
+    });
+
+    if (priceFilter.value === 'Crescente') {
+        filteredBezerros.sort((first, second) => Number(first.preco || 0) - Number(second.preco || 0));
+    } else if (priceFilter.value === 'Decrescente') {
+        filteredBezerros.sort((first, second) => Number(second.preco || 0) - Number(first.preco || 0));
+    }
+
+    count.textContent = `${filteredBezerros.length} bezerro${filteredBezerros.length === 1 ? '' : 's'}`;
+    renderBezerros(filteredBezerros);
 }
 
 function openBezerroDetail(bezerro) {
@@ -924,6 +987,11 @@ function initRebanhoPage() {
     });
     list?.addEventListener('click', handleBezerroCardClick);
     list?.addEventListener('keydown', handleBezerroCardKeydown);
+    document.getElementById('search')?.addEventListener('input', filterRebanho);
+    document.getElementById('breedFilter')?.addEventListener('change', filterRebanho);
+    document.getElementById('sexFilter')?.addEventListener('change', filterRebanho);
+    document.getElementById('priceFilter')?.addEventListener('change', filterRebanho);
+    document.getElementById('ageFilter')?.addEventListener('change', filterRebanho);
     loadBezerros();
 }
 

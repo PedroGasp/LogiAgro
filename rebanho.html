@@ -50,6 +50,43 @@
             </div>
         </div>
 
+        <section class="market-toolbar">
+            <input
+                id="search"
+                class="search"
+                type="search"
+                placeholder="Pesquisar por identificação ou raça..."
+            >
+
+            <select id="breedFilter" class="filter">
+                <option value="">Todas as raças</option>
+            </select>
+
+            <select id="sexFilter" class="filter">
+                <option value="">Todos os sexos</option>
+                <option value="0">Machos</option>
+                <option value="1">Fêmeas</option>
+            </select>
+
+            <select id="priceFilter" class="filter">
+                <option value="">Preço</option>
+                <option value="Crescente">Crescente</option>
+                <option value="Decrescente">Decrescente</option>
+            </select>
+
+                    <select id="ageFilter" class="filter">
+                <option value="">Idade</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3+">3+</option>
+            </select>
+
+        </section>
+
+    <div id="count" class="market-count"></div>
+
+    <section id="animalsGrid" class="animals-grid"></section>
+
         <div id="bezerrosList" class="bezerros-list"></div>
     </main>
 

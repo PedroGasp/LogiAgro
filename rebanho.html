@@ -14,14 +14,14 @@
             <span class="material-symbols-outlined close-btn" onclick="toggleMenu()">close</span>
         </div>
         <nav class="sidebar-links">
-            <a href="index.html"><span class="material-symbols-outlined">home</span> Início</a>
-            <a href="alertas.html"><span class="material-symbols-outlined">notifications</span> Notificações</a>
+            <a href="dashboard.html"><span class="material-symbols-outlined">home</span> Início</a>
+            <a href="notificacoes.html"><span class="material-symbols-outlined">notifications</span> Notificações</a>
             <a href="alertas.html"><span class="material-symbols-outlined">warning</span> Alertas</a>
-            <a href="rebanho.html" class="active"><span class="material-symbols-outlined">agriculture</span> Rebanho</a>
             <a href="mercado.html"><span class="material-symbols-outlined">store</span> Mercado</a>
-            <a href="#"><span class="material-symbols-outlined">settings</span> Configurações</a>
-            <a href="#"><span class="material-symbols-outlined">help</span> Ajuda</a>
-            <a href="#"><span class="material-symbols-outlined">logout</span> Sair</a>
+            <a href="rebanho.html" class="active"><span class="material-symbols-outlined">agriculture</span> Rebanho</a>
+            <a href="configuracoes.html"><span class="material-symbols-outlined">settings</span> Configurações</a>
+            <a href="ajuda.html"><span class="material-symbols-outlined">help</span> Ajuda</a>
+            <a href="index.html" onclick="logout(); return false;"><span class="material-symbols-outlined">logout</span> Sair</a>
         </nav>
     </div>
 
@@ -49,6 +49,43 @@
                 <p>Registre e gerencie os bezerros do seu rebanho.</p>
             </div>
         </div>
+
+        <section class="market-toolbar">
+            <input
+                id="search"
+                class="search"
+                type="search"
+                placeholder="Pesquisar por identificação ou raça..."
+            >
+
+            <select id="breedFilter" class="filter">
+                <option value="">Todas as raças</option>
+            </select>
+
+            <select id="sexFilter" class="filter">
+                <option value="">Todos os sexos</option>
+                <option value="0">Machos</option>
+                <option value="1">Fêmeas</option>
+            </select>
+
+            <select id="priceFilter" class="filter">
+                <option value="">Preço</option>
+                <option value="Crescente">Crescente</option>
+                <option value="Decrescente">Decrescente</option>
+            </select>
+
+                    <select id="ageFilter" class="filter">
+                <option value="">Idade</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3+">3+</option>
+            </select>
+
+        </section>
+
+    <div id="count" class="market-count"></div>
+
+    <section id="animalsGrid" class="animals-grid"></section>
 
         <div id="bezerrosList" class="bezerros-list"></div>
     </main>
@@ -87,6 +124,14 @@
                     <input id="idadeBezerro" name="idadeBezerro" type="text" placeholder="Digite a idade" required>
                 </div>
                 <div class="form-field">
+                    <label for="sexoBezerro">Sexo</label>
+                    <select id="sexoBezerro" name="sexoBezerro" required>
+                        <option value="">Selecione o sexo</option>
+                        <option value="0">Macho</option>
+                        <option value="1">Fêmea</option>
+                    </select>
+                </div>
+                <div class="form-field">
                     <label for="fotoBezerro">Foto do Bezerro</label>
                     <div id="photoPreview" class="upload-area">
                         <button type="button" id="removePhotoBtn" class="remove-photo-btn" aria-label="Remover imagem" title="Remover imagem">×</button>
@@ -112,6 +157,23 @@
                 <div id="bezerroDetailMeta" class="detail-modal__meta"></div>
                 <button type="button" class="button-primary detail-modal__action" data-close="true">Fechar</button>
             </div>
+        </div>
+    </div>
+
+    <div id="precoModal" class="form-modal" aria-hidden="true">
+        <div class="form-card">
+            <button type="button" id="closePrecoModal" class="close-modal" aria-label="Fechar">×</button>
+            <h2>Definir preço do bezerro</h2>
+            <form id="precoForm">
+                <div class="form-field">
+                    <label for="precoBezerro">Preço (R$)</label>
+                    <input id="precoBezerro" name="precoBezerro" type="number" min="0" step="0.01" placeholder="Digite o preço" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancelPrecoBtn" class="button-secondary">Cancelar</button>
+                    <button type="submit" class="button-primary">Salvar</button>
+                </div>
+            </form>
         </div>
     </div>
 

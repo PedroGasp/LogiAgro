@@ -437,7 +437,7 @@ body { background-color: var(--bg-light); color: #333; }
 
 .bezerros-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 18px;
     width: 100%;
     align-items: stretch;
@@ -519,6 +519,15 @@ body { background-color: var(--bg-light); color: #333; }
     gap: 8px;
 }
 
+.bezerros-loading {
+    grid-column: 1 / -1;
+    padding: 32px;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #607d8b;
+    text-align: center;
+}
+
 .bezerro-pill {
     display: inline-flex;
     align-items: center;
@@ -575,13 +584,15 @@ body { background-color: var(--bg-light); color: #333; }
 }
 
 @media (max-width: 1024px) {
-    .bezerros-list {
+    .bezerros-list,
+    .animals-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 640px) {
-    .bezerros-list {
+    .bezerros-list,
+    .animals-grid {
         grid-template-columns: 1fr;
     }
 
@@ -1029,6 +1040,18 @@ body { background-color: var(--bg-light); color: #333; }
     opacity: 0.7;    
 }
 
+#loginInicial {
+
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding-top: 100px;
+    background-color: #f5f5f5;
+}
+
+
 #loginModal {
     display: none;
     position: fixed;
@@ -1088,6 +1111,12 @@ body { background-color: var(--bg-light); color: #333; }
   margin-bottom: 15px;
 }
 
+.market-count {
+    margin: -5px 0 15px;
+    color: #607d8b;
+    font-size: 13px;
+}
+
 .search {
     flex: 1 1 260px;
   height: 38px;
@@ -1112,8 +1141,17 @@ body { background-color: var(--bg-light); color: #333; }
 
 .animals-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
+}
+
+.market-loading {
+    grid-column: 1 / -1;
+    padding: 32px;
+    color: #607d8b;
+    text-align: center;
+    background: white;
+    border-radius: 12px;
 }
 
 .animal-card {
@@ -1122,6 +1160,11 @@ body { background-color: var(--bg-light); color: #333; }
   padding: 13px;
   box-shadow: 0 3px 11px rgba(0,0,0,.10);
   border: 1px solid rgba(0,0,0,.025);
+}
+
+.animal-card--sick {
+    background: linear-gradient(135deg, #fff2f2, #fff7f7);
+    border-color: #f0a7a7;
 }
 
 .animal-top {
@@ -1201,6 +1244,31 @@ body { background-color: var(--bg-light); color: #333; }
   font-size: 16px;
   font-weight: 700;
   color: #087d28;
+}
+
+.price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.animal-sick-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 8px;
+    height: 30px;
+    border-radius: 8px;
+    background: #fde8e8;
+    color: #b42318;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.animal-sick-indicator .material-symbols-outlined {
+    font-size: 18px;
 }
 
 .price-label {

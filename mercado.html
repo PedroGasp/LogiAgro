@@ -16,40 +16,19 @@
             <span class="material-symbols-outlined close-btn" onclick="toggleMenu()">close</span>
         </div>
         <nav class="sidebar-links">
-            <a href="index.html"><span class="material-symbols-outlined">home</span> Início</a>
-            <a href="alertas.html"><span class="material-symbols-outlined">notifications</span> Notificações</a>
+            <a href="dashboard.html"><span class="material-symbols-outlined">home</span> Início</a>
+            <a href="notificacoes.html"><span class="material-symbols-outlined">notifications</span> Notificações</a>
             <a href="alertas.html"><span class="material-symbols-outlined">warning</span> Alertas</a>
-            <a href="rebanho.html"><span class="material-symbols-outlined">agriculture</span> Rebanho</a>
             <a href="mercado.html" class="active"><span class="material-symbols-outlined">store</span> Mercado</a>
-            <a href="#"><span class="material-symbols-outlined">settings</span> Configurações</a>
-            <a href="#"><span class="material-symbols-outlined">help</span> Ajuda</a>
-            <a href="#"><span class="material-symbols-outlined">logout</span> Sair</a>
+            <a href="rebanho.html"><span class="material-symbols-outlined">agriculture</span> Rebanho</a>
+            <a href="configuracoes.html"><span class="material-symbols-outlined">settings</span> Configurações</a>
+            <a href="ajuda.html"><span class="material-symbols-outlined">help</span> Ajuda</a>
+            <a href="index.html" onclick="logout(); return false;"><span class="material-symbols-outlined">logout</span> Sair</a>
         </nav>
   </div>
 
   <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
   
-  <header class="header">
-
-        <div id="sidebar" class="sidebar">
-        <div class="sidebar-header">
-            <h2>Opções</h2>
-            <span class="material-symbols-outlined close-btn" onclick="toggleMenu()">close</span>
-        </div>
-        <nav class="sidebar-links">
-            <a href="index.html"><span class="material-symbols-outlined">home</span> Início</a>
-            <a href="#"><span class="material-symbols-outlined">notifications</span> Notificações</a>
-            <a href="#"><span class="material-symbols-outlined">warning</span> Alertas</a>
-            <a href="#"><span class="material-symbols-outlined">store</span> Mercado</a>
-            <a href="#" class="active"><span class="material-symbols-outlined">agriculture</span> Rebanho</a>
-            <a href="#"><span class="material-symbols-outlined">settings</span> Configurações</a>
-            <a href="#"><span class="material-symbols-outlined">help</span> Ajuda</a>
-            <a href="#"><span class="material-symbols-outlined">logout</span> Sair</a>
-        </nav>
-    </div>
-
-    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
-
     <header class="main-header">
         <div class="icon-btn" onclick="toggleMenu()">
             <span class="material-symbols-outlined">menu</span>
@@ -84,19 +63,218 @@
 
       <select id="sexFilter" class="filter">
         <option value="">Todos os sexos</option>
-        <option value="Macho">Machos</option>
-        <option value="Fêmea">Fêmeas</option>
+        <option value="0">Machos</option>
+        <option value="1">Fêmeas</option>
       </select>
 
-      <div id="count" class="market-count"></div>
+      <select id="priceFilter" class="filter">
+        <option value="">Preço</option>
+        <option value="Crescente">Crescente</option>
+        <option value="Decrescente">Decrescente</option>
+      </select>
+
+            <select id="ageFilter" class="filter">
+        <option value="">Idade</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3+">3+</option>
+      </select>
+
     </section>
 
+    <div id="count" class="market-count"></div>
+
     <section id="animalsGrid" class="animals-grid"></section>
-    <button class="fab" title="Adicionar ao mercado">+</button>
+    
 
 
   </main>
 
+<script>
+    const animais = [];
+    const mercadoApi = "http://localhost:3000/api/mercado";
+
+    const grid = document.getElementById("animalsGrid");
+    const search = document.getElementById("search");
+    const breedFilter = document.getElementById("breedFilter");
+    const sexFilter = document.getElementById("sexFilter");
+    const priceFilter = document.getElementById("priceFilter");
+    const ageFilter = document.getElementById("ageFilter");
+    const count = document.getElementById("count");
+    const loggedUserId = localStorage.getItem("user_id");
+
+    function money(value) {
+      return Number(value).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+    }
+
+    function fillBreeds(list) {
+      const selectedBreed = breedFilter.value;
+      const breeds = [...new Set(list.map(a => a.raca).filter(Boolean))].sort();
+
+      breedFilter.innerHTML = '<option value="">Todas as raças</option>';
+      breeds.forEach(breed => {
+        const option = document.createElement("option");
+        option.value = breed;
+        option.textContent = breed;
+        breedFilter.appendChild(option);
+      });
+      breedFilter.value = breeds.includes(selectedBreed) ? selectedBreed : "";
+    }
+
+    function renderAnimals(list = animais) {
+      grid.innerHTML = "";
+
+      count.textContent =
+        `${list.length} animal${list.length === 1 ? "" : "is"} disponível${list.length === 1 ? "" : "e"} para o mercado`;
+
+      if (!list.length) {
+        grid.innerHTML = `
+          <div style="grid-column:1/-1; background:white; border-radius:12px;
+                      padding:30px; text-align:center; color:#78909c;
+                      box-shadow:0 3px 10px rgba(0,0,0,.07);">
+            Nenhum animal encontrado.
+          </div>
+        `;
+        return;
+      }
+
+      list.forEach(animal => {
+        const card = document.createElement("article");
+        const sick = Number(animal.doente) === 1;
+        card.className = `animal-card${sick ? " animal-card--sick" : ""}`;
+
+        card.innerHTML = `
+          <div class="animal-top">
+            <div>
+              <h2 class="animal-name">${animal.nome || animal.id}</h2>
+              <div class="animal-breed">${animal.raca || "Raça não informada"}</div>
+            </div>
+            <span class="status">Disponível</span>
+          </div>
+
+          <div class="photo">
+            ${
+              animal.foto
+                ? `<img src="${animal.foto}" alt="Foto de ${animal.nome || animal.id}">`
+                : "Sem foto cadastrada."
+            }
+          </div>
+
+          <div class="info">
+            <div class="info-item">
+              <span class="label">Peso</span>
+              <strong>${animal.peso ?? "--"} kg</strong>
+            </div>
+
+            <div class="info-item">
+              <span class="label">Idade</span>
+              <strong>${animal.idade ?? "--"} ano${animal.idade == 1 ? "" : "s"}</strong>
+            </div>
+
+            <div class="info-item">
+              <span class="label">Sexo</span>
+              <strong>${animal.sexo || "--"}</strong>
+            </div>
+
+            <div class="info-item">
+              <span class="label">Identificação</span>
+              <strong>${animal.id || "--"}</strong>
+            </div>
+          </div>
+
+          <div class="price-label">Valor de venda</div>
+          <div class="price-row">
+            <div class="price">${animal.preco != null ? money(animal.preco) : "A consultar"}</div>
+            ${sick ? `
+              <span class="animal-sick-indicator" title="Animal doente" aria-label="Animal doente">
+                <span>Doente</span>
+                <span class="material-symbols-outlined">bug_report</span>
+              </span>
+            ` : ""}
+          </div>
+
+          <div class="card-actions">
+            <button class="btn btn-details" onclick="showDetails('${animal.id}')">
+              Detalhes
+            </button>
+            ${loggedUserId !== null && Number(animal.proprietario_id) === Number(loggedUserId) ? "" : `
+              <button class="btn btn-interest" onclick="showInterest('${animal.id}')">
+                Tenho interesse
+              </button>
+            `}
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    async function filterAnimals() {
+      const params = new URLSearchParams();
+      const filters = {
+        busca: search.value.trim(),
+        raca: breedFilter.value,
+        sexo: sexFilter.value,
+        preco: priceFilter.value,
+        idade: ageFilter.value
+      };
+
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) params.set(key, value);
+      });
+
+      grid.innerHTML = '<div class="market-loading">Carregando animais...</div>';
+      count.textContent = "";
+
+      try {
+        const response = await fetch(`${mercadoApi}?${params.toString()}`);
+        if (!response.ok) {
+          throw new Error("Não foi possível carregar os animais.");
+        }
+
+        const result = await response.json();
+        animais.splice(0, animais.length, ...result);
+        fillBreeds(result);
+        renderAnimals(result);
+      } catch (error) {
+        grid.innerHTML = `<div class="market-loading">${error.message}</div>`;
+        count.textContent = "";
+      }
+    }
+
+    function showDetails(id) {
+      const animal = animais.find(a => a.id === id);
+      if (!animal) return;
+
+      alert(
+        `Animal: ${animal.nome || animal.id}\\n` +
+        `Raça: ${animal.raca || "--"}\\n` +
+        `Sexo: ${animal.sexo || "--"}\\n` +
+        `Peso: ${animal.peso ?? "--"} kg\\n` +
+        `Idade: ${animal.idade ?? "--"} anos\\n` +
+        `Valor: ${animal.preco != null ? money(animal.preco) : "A consultar"}`
+      );
+    }
+
+    function showInterest(id) {
+      const animal = animais.find(a => a.id === id);
+      if (!animal) return;
+
+      alert(`Interesse registrado no animal ${animal.nome || animal.id}.`);
+    }
+
+    search.addEventListener("input", filterAnimals);
+    breedFilter.addEventListener("change", filterAnimals);
+    sexFilter.addEventListener("change", filterAnimals);
+    priceFilter.addEventListener("change", filterAnimals);
+    ageFilter.addEventListener("change", filterAnimals);
+
+    filterAnimals();
+
+  </script>
 
   <script src="script.js"></script>
 

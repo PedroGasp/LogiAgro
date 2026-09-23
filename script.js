@@ -676,14 +676,21 @@ async function submitBezerroForm(event) {
     const raca = document.getElementById('racaBezerro')?.value;
     const peso = document.getElementById('pesoBezerro')?.value.trim();
     const idade = document.getElementById('idadeBezerro')?.value.trim();
+    const userId = Number(localStorage.getItem('user_id'));
 
     if (!nomeBezerro || !raca || !peso || !idade) {
         showStatusNotification('error', 'Por favor, preencha todos os campos antes de enviar.');
         return;
     }
 
+    if (!userId || Number.isNaN(userId)) {
+        showStatusNotification('error', 'Faça login antes de cadastrar um bezerro.');
+        return;
+    }
+
     try {
         const payload = {
+            usuario_id: userId,
             nome: nomeBezerro,
             raca,
             peso: Number(peso),

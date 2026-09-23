@@ -45,7 +45,12 @@ app.post('/api/user/auth', (req, res) => {
 });
 
 app.get('/api/bezerros_by_user/:id', (req, res) => {
-    let user_id = req.params.id;
+    const user_id = req.params.id;
+
+    if (!user_id || Number.isNaN(Number(user_id))) {
+        return res.status(401).json({ error: 'Usuário não autenticado.' });
+    }
+
     db.query('SELECT * FROM bezerros b WHERE b.usuario_id = ? ORDER BY id DESC', [user_id], (err, results) => {
         if (err) {
             return res.status(500).json({ error: err.message });
@@ -90,14 +95,19 @@ app.get('/api/bezerros', (req, res) => {
 });
 
 app.post('/api/bezerros', (req, res) => {
-    const { nome, raca, peso, idade, imagem_base64, vendido = 0, doente = 0 } = req.body;
+    const { usuario_id, nome, raca, peso, idade, imagem_base64, vendido = 0, doente = 0 } = req.body;
+    const parsedUserId = Number(usuario_id);
 
-    if (!nome || !raca || !peso || !idade || !imagem_base64) {
+    if (!parsedUserId || Number.isNaN(parsedUserId)) {
+        return res.status(401).json({ error: 'Usuário não autenticado. Faça login antes de cadastrar um bezerro.' });
+    }
+
+    if (!nome || !raca || !peso || !idade) {
         return res.status(400).json({ error: 'Campos obrigatórios ausentes.' });
     }
 
-    const query = 'INSERT INTO bezerros (nome, raca, peso, idade, imagem_base64, vendido, doente) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    const values = [nome, raca, peso, idade, imagem_base64 || null, Number(vendido), Number(doente)];
+    const query = 'INSERT INTO bezerros (nome, raca, peso, idade, imagem_base64, vendido, doente, usuario_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+    const values = [nome, raca, peso, idade, imagem_base64 || null, Number(vendido), Number(doente), parsedUserId];
 
     db.query(query, values, (err, result) => {
         if (err) {

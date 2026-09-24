@@ -178,14 +178,14 @@ app.get('/api/mercado', (req, res) => {
 });
 
 app.post('/api/bezerros', (req, res) => {
-    const { nome, raca, peso, idade, sexo, imagem_base64, preco = null, vendido = 0, doente = 0 } = req.body;
+    const { user_id, nome, raca, peso, idade, sexo, imagem_base64 = null, preco = null, vendido = 0, doente = 0 } = req.body;
 
-    if (!nome || !raca || !peso || !idade || (sexo !== 0 && sexo !== 1) || !imagem_base64) {
+    if (!user_id || !nome || !raca || !peso || !idade || (sexo !== 0 && sexo !== 1)) {
         return res.status(400).json({ error: 'Campos obrigatórios ausentes.' });
     }
 
-    const query = 'INSERT INTO bezerros (nome, raca, peso, idade, sexo, imagem_base64, preco, vendido, doente) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-    const values = [nome, raca, peso, idade, Number(sexo), imagem_base64 || null, preco === null ? null : Number(preco), Number(vendido), Number(doente)];
+    const query = 'INSERT INTO bezerros (usuario_id, nome, raca, peso, idade, sexo, imagem_base64, preco, vendido, doente) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    const values = [Number(user_id), nome, raca, peso, idade, Number(sexo), imagem_base64 || null, preco === null ? null : Number(preco), Number(vendido), Number(doente)];
 
     db.query(query, values, (err, result) => {
         if (err) {

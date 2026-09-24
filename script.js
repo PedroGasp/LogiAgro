@@ -784,12 +784,18 @@ function openBezerroFormById(id) {
 async function submitBezerroForm(event) {
     event.preventDefault();
     const isEditing = Boolean(currentEditingBezerroId);
+    const userId = localStorage.getItem('user_id');
 
     const nomeBezerro = document.getElementById('nomeBezerro')?.value.trim();
     const raca = document.getElementById('racaBezerro')?.value;
     const peso = document.getElementById('pesoBezerro')?.value.trim();
     const idade = document.getElementById('idadeBezerro')?.value.trim();
     const sexo = document.getElementById('sexoBezerro')?.value;
+
+    if (!userId) {
+        showStatusNotification('error', 'Faca login novamente antes de cadastrar um bezerro.');
+        return;
+    }
 
     if (!nomeBezerro || !raca || !peso || !idade || (sexo !== '0' && sexo !== '1')) {
         showStatusNotification('error', 'Por favor, preencha todos os campos antes de enviar.');
@@ -798,6 +804,7 @@ async function submitBezerroForm(event) {
 
     try {
         const payload = {
+            user_id: Number(userId),
             nome: nomeBezerro,
             raca,
             peso: Number(peso),

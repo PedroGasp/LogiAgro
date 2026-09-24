@@ -68,10 +68,13 @@ body { background-color: var(--bg-light); color: #333; }
 .main-header {
     background-color: var(--primary-green);
     display: flex;
-    justify-content: space-between; 
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) 42px;
+    justify-items: center;
     align-items: center;
     padding: 10px 20px;
-    height: 80px; 
+    height: 80px;
+    min-height: 80px;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -118,9 +121,11 @@ body { background-color: var(--bg-light); color: #333; }
 .logo-container {
     display: flex;
     align-items: center; 
+    justify-content: center;
     gap: 10px;
     flex-wrap: nowrap;
     flex-shrink: 0;
+    grid-column: 2;
 }
 
 .company-name {

@@ -59,7 +59,12 @@ app.get('/api/user/:id', (req, res) => {
 });
 
 app.get('/api/bezerros_by_user/:id', (req, res) => {
-    let user_id = req.params.id;
+    const user_id = req.params.id;
+
+    if (!user_id || Number.isNaN(Number(user_id))) {
+        return res.status(401).json({ error: 'Usuário não autenticado.' });
+    }
+
     db.query('SELECT * FROM bezerros b WHERE b.usuario_id = ? ORDER BY id DESC', [user_id], (err, results) => {
         if (err) {
             return res.status(500).json({ error: err.message });

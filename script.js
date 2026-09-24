@@ -1,4 +1,3 @@
-// Simulação de dados vindos de um JSON (API)
 const dadosMercado = [
     {
         "titulo": "Oferta Especial",
@@ -799,6 +798,11 @@ async function submitBezerroForm(event) {
 
     if (!nomeBezerro || !raca || !peso || !idade || (sexo !== '0' && sexo !== '1')) {
         showStatusNotification('error', 'Por favor, preencha todos os campos antes de enviar.');
+        return;
+    }
+
+    if (!userId || Number.isNaN(Number(userId))) {
+        showStatusNotification('error', 'Faça login antes de cadastrar um bezerro.');
         return;
     }
 
